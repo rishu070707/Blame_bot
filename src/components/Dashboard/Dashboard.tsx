@@ -27,18 +27,18 @@ const HealthScoreWidget: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       style={{
         padding: '12px 20px',
-        background: 'var(--bg-surface)',
-        borderBottom: '1px solid var(--border-base)',
+        background: '#fff',
+        borderBottom: 'var(--border-width) solid #000',
         display: 'flex', alignItems: 'center', gap: '24px', flexShrink: 0,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <ScoreRing score={overall} size={52} label="" />
         <div>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <p style={{ fontSize: '0.875rem', color: '#000', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Project Health
           </p>
-          <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+          <p style={{ fontSize: '1.25rem', fontWeight: 900, color: '#000', textTransform: 'uppercase' }}>
             {activeProject.name}
           </p>
         </div>
@@ -62,12 +62,12 @@ const HealthScoreWidget: React.FC = () => {
 const MiniStat: React.FC<{ icon: React.ReactNode; label: string; value: string; color: string }> = ({
   icon, label, value, color,
 }) => (
-  <div style={{ textAlign: 'center' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-dim)', marginBottom: '2px', justifyContent: 'center' }}>
+  <div style={{ textAlign: 'center', background: '#fff', border: '2px solid #000', padding: '8px 12px', boxShadow: '2px 2px 0px #000' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#000', marginBottom: '2px', justifyContent: 'center', fontWeight: 900 }}>
       {icon}
-      <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
+      <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
     </div>
-    <p style={{ fontSize: '0.9375rem', fontWeight: 700, color }}>{value}</p>
+    <p style={{ fontSize: '1.25rem', fontWeight: 900, color }}>{value}</p>
   </div>
 );
 

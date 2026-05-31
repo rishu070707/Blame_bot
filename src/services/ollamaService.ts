@@ -1,4 +1,4 @@
-﻿import type { OllamaModel, OllamaRequest, ChatMessage } from '../types';
+import type { OllamaModel, OllamaRequest, ChatMessage } from '../types';
 
 const DEFAULT_HOST = 'http://localhost:11434';
 
@@ -71,8 +71,24 @@ class OllamaService {
     } finally { reader.releaseLock(); }
   }
 
+  async generateFix(model: string, prompt: string, signal?: AbortSignal): Promise<string> {
+    const res = await fetch(`${this.host}/api/generate`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, prompt, stream: false }), signal,
+    });
+    if (!res.ok) throw new Error(`Ollama error: ${res.statusText}`);
+    const data = await res.json();
+    return data.response;
+  }
+
   buildSystemPrompt(context?: string): string {
-    return `You are BlameBot, an expert AI developer assistant specialized in code analysis, debugging, security vulnerability detection, and performance optimization. You provide precise, actionable responses with code examples. Always consider security implications and production readiness.${context ? `\n\nProject Context:\n${context}` : ''}`;
+    return `You are BlameBot, an expert AI developer assistant specialized in code analysis, debugging, security vulnerability detection, and performance optimization. You provide precise, actionable responses with code examples. Always consider security implications and production readiness.
+    
+CRITICAL: When providing code blocks, you MUST specify the target file path in the markdown language tag like so:
+\`\`\`language /path/to/target/file.ts
+// code here
+\`\`\`
+${context ? `\n\nProject Context:\n${context}` : ''}`;
   }
 
   buildSecurityAuditPrompt(code: string, language: string): string {

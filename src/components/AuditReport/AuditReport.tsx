@@ -83,12 +83,11 @@ const FindingCard: React.FC<{
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       style={{
-        background: 'var(--bg-card)',
-        borderRadius: 'var(--radius-lg)',
-        border: `1px solid var(--border-base)`,
-        borderLeft: `3px solid ${borderColor}`,
+        background: '#fff',
+        border: 'var(--border-width) solid #000',
         overflow: 'hidden',
-        boxShadow: 'var(--shadow-sm)',
+        boxShadow: '4px 4px 0px #000',
+        marginBottom: '8px',
       }}
     >
       {/* Header Row */}
@@ -110,7 +109,7 @@ const FindingCard: React.FC<{
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+            <p style={{ fontSize: '1rem', fontWeight: 900, color: '#000', textTransform: 'uppercase' }}>
               {finding.title}
             </p>
             <Badge variant={finding.severity}>{finding.severity}</Badge>
@@ -118,7 +117,7 @@ const FindingCard: React.FC<{
               <Badge variant="info">{finding.cwe}</Badge>
             )}
           </div>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+          <p style={{ fontSize: '0.875rem', color: '#000', fontFamily: 'var(--font-mono)', marginTop: '4px', fontWeight: 600 }}>
             {finding.file}
             {'line' in finding && finding.line ? `:${finding.line}` : ''}
           </p>
@@ -142,25 +141,25 @@ const FindingCard: React.FC<{
             exit={{ height: 0 }}
             style={{ overflow: 'hidden' }}
           >
-            <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-base)', paddingTop: '14px' }}>
+            <div style={{ padding: '0 16px 16px', borderTop: 'var(--border-width) solid #000', paddingTop: '14px', background: 'var(--accent-yellow)' }}>
               {/* Description */}
-              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '12px', lineHeight: '1.6' }}>
+              <p style={{ fontSize: '1rem', color: '#000', marginBottom: '12px', lineHeight: '1.6', fontWeight: 600 }}>
                 {finding.description}
               </p>
 
               {/* Code Snippet */}
               {finding.snippet && (
                 <div style={{ marginBottom: '12px' }}>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                  <p style={{ fontSize: '0.875rem', color: '#000', marginBottom: '6px', fontWeight: 900, textTransform: 'uppercase' }}>
                     Affected Code
                   </p>
                   <div style={{
-                    background: 'var(--bg-base)', borderRadius: 'var(--radius-md)',
-                    padding: '10px 12px', border: '1px solid var(--border-base)',
-                    boxShadow: 'var(--shadow-inset-sm)',
+                    background: '#fff',
+                    padding: '10px 12px', border: 'var(--border-width) solid #000',
+                    boxShadow: '4px 4px 0px #000',
                     overflowX: 'auto',
                   }}>
-                    <pre style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                    <pre style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem', color: '#000', margin: 0, fontWeight: 800 }}>
                       {finding.snippet}
                     </pre>
                   </div>
@@ -183,19 +182,20 @@ const FindingCard: React.FC<{
               {aiFix && (
                 <div style={{ marginBottom: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                    <Zap size={12} style={{ color: 'var(--accent-cyan)' }} />
-                    <p style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                    <Zap size={14} style={{ color: '#000' }} />
+                    <p style={{ fontSize: '0.875rem', color: '#000', fontWeight: 900, textTransform: 'uppercase' }}>
                       AI-Generated Fix
                     </p>
-                    {aiFixLoading && <LoadingSpinner size={12} />}
+                    {aiFixLoading && <LoadingSpinner size={12} color="#000" />}
                   </div>
                   <div style={{
-                    background: 'var(--bg-base)', borderRadius: 'var(--radius-md)',
-                    padding: '10px 12px', border: '1px solid rgba(34,211,238,0.15)',
-                    fontSize: '0.8125rem', color: 'var(--text-secondary)', lineHeight: '1.6',
-                    fontFamily: 'var(--font-mono)',
+                    background: 'var(--accent-cyan)',
+                    padding: '10px 12px', border: 'var(--border-width) solid #000',
+                    fontSize: '0.875rem', color: '#000', lineHeight: '1.6',
+                    fontFamily: 'var(--font-mono)', fontWeight: 800,
+                    boxShadow: '4px 4px 0px #000'
                   }}>
-                    <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                    <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'transparent', padding: 0, border: 'none', color: '#000', boxShadow: 'none' }}>
                       {aiFix}
                     </pre>
                   </div>
@@ -343,12 +343,12 @@ export const AuditReport: React.FC = () => {
     }}>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: '#fff', border: 'var(--border-width) solid #000', padding: '16px', boxShadow: '4px 4px 0px #000' }}>
         <div>
-          <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#000', textTransform: 'uppercase' }}>
             Audit Report
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+          <p style={{ fontSize: '1rem', color: '#000', marginTop: '4px', fontWeight: 600 }}>
             {activeProject ? activeProject.name : 'No project selected'}
             {securityReport && ` · ${new Date(securityReport.generatedAt).toLocaleDateString()}`}
           </p>
@@ -380,26 +380,26 @@ export const AuditReport: React.FC = () => {
 
       {/* Tabs + Filters */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-base)', padding: '4px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-base)' }}>
+        <div style={{ display: 'flex', gap: '4px', background: '#fff', padding: '4px', border: 'var(--border-width) solid #000', boxShadow: '4px 4px 0px #000' }}>
           {(['security', 'performance'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
-                padding: '7px 16px', borderRadius: 'var(--radius-sm)',
-                background: activeTab === tab ? 'var(--bg-card)' : 'transparent',
-                border: activeTab === tab ? '1px solid var(--border-base)' : '1px solid transparent',
-                color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-muted)',
-                fontFamily: 'var(--font-sans)', fontSize: '0.875rem', fontWeight: 500,
+                padding: '7px 16px',
+                background: activeTab === tab ? 'var(--accent-yellow)' : 'transparent',
+                border: activeTab === tab ? '2px solid #000' : '2px solid transparent',
+                color: '#000',
+                fontFamily: 'var(--font-sans)', fontSize: '0.875rem', fontWeight: 900, textTransform: 'uppercase',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-                boxShadow: activeTab === tab ? 'var(--shadow-sm)' : 'none',
+                boxShadow: activeTab === tab ? '2px 2px 0px #000' : 'none',
               }}
             >
               {tab === 'security' ? <Shield size={14} /> : <Zap size={14} />}
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
               <span style={{
-                padding: '1px 6px', borderRadius: 'var(--radius-full)',
-                background: 'var(--bg-base)', fontSize: '0.7rem', color: 'var(--text-muted)',
+                padding: '2px 8px', border: '2px solid #000',
+                background: '#fff', fontSize: '0.75rem', color: '#000',
               }}>
                 {tab === 'security' ? (securityReport?.totalFindings ?? 0) : (performanceReport?.totalFindings ?? 0)}
               </span>
@@ -460,19 +460,18 @@ const StatCard: React.FC<{ title: string; value: string; icon: React.ReactNode; 
     animate={{ opacity: 1, y: 0 }}
     style={{
       padding: '14px 16px',
-      background: 'var(--bg-card)',
-      borderRadius: 'var(--radius-lg)',
-      border: '1px solid var(--border-base)',
-      boxShadow: 'var(--shadow-sm)',
+      background: '#fff',
+      border: 'var(--border-width) solid #000',
+      boxShadow: '4px 4px 0px #000',
     }}
   >
-    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color, marginBottom: '6px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#000', marginBottom: '6px' }}>
       {icon}
-      <span style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>
+      <span style={{ fontSize: '0.875rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#000' }}>
         {title}
       </span>
     </div>
-    <p style={{ fontSize: '1.5rem', fontWeight: 800, color, letterSpacing: '-0.02em' }}>{value}</p>
+    <p style={{ fontSize: '2rem', fontWeight: 900, color, letterSpacing: '-0.02em', textShadow: '1px 1px 0px #000' }}>{value}</p>
   </motion.div>
 );
 

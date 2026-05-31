@@ -17,19 +17,39 @@ import type { ChatMessage } from '../../types';
 
 const CustomCodeBlock = ({ node, inline, className, children, ...props }: any) => {
   const match = /language-(\w+)/.exec(className || '');
+  const meta = node?.data?.meta || node?.meta || props.meta || '';
   const [applying, setApplying] = useState(false);
 
   const handleApply = async () => {
     try {
       setApplying(true);
       const codeToApply = String(children).replace(/\n$/, '');
-      const selectedPath = await saveFileDialog();
-      if (selectedPath) {
-        await applyCodeEdit(selectedPath, codeToApply);
-        alert('File saved successfully: ' + selectedPath);
+      const store = useAppStore.getState();
+      const activeProject = store.projects.find(p => p.id === store.activeProjectId);
+      
+      let targetPath = '';
+      if (meta && activeProject) {
+        const cleanMeta = meta.trim();
+        if (cleanMeta.startsWith('/') || cleanMeta.match(/^[a-zA-Z]:\\/)) {
+          targetPath = cleanMeta;
+        } else {
+          const separator = activeProject.path.includes('\\') ? '\\' : '/';
+          const normalizedMeta = cleanMeta.replace(/[\\/]/g, separator);
+          targetPath = `${activeProject.path}${activeProject.path.endsWith(separator) ? '' : separator}${normalizedMeta}`;
+        }
+      }
+
+      let finalPath = targetPath;
+      if (!finalPath) {
+        finalPath = await saveFileDialog() || '';
+      }
+
+      if (finalPath) {
+        await applyCodeEdit(finalPath, codeToApply);
+        alert('Applied successfully to: ' + finalPath);
       }
     } catch (e: any) {
-      alert('Failed to save file: ' + e);
+      alert('Failed to apply to file: ' + e);
     } finally {
       setApplying(false);
     }
@@ -37,22 +57,39 @@ const CustomCodeBlock = ({ node, inline, className, children, ...props }: any) =
 
   if (!inline && match) {
     return (
-      <div style={{ position: 'relative', marginTop: '12px', marginBottom: '12px' }}>
+      <div style={{ position: 'relative', marginTop: '16px', marginBottom: '16px', border: 'var(--border-width) solid #000', boxShadow: '4px 4px 0px #000' }}>
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          background: 'rgba(0,0,0,0.2)', padding: '6px 12px',
-          borderTopLeftRadius: 'var(--radius-md)', borderTopRightRadius: 'var(--radius-md)',
-          borderBottom: '1px solid var(--border-base)',
+          background: '#000', padding: '8px 12px',
+          borderBottom: 'var(--border-width) solid #000',
         }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{match[1]}</span>
-          <Button variant="primary" size="sm" onClick={handleApply} isLoading={applying} leftIcon={<CheckCircle size={12} />}>
-            Save to File
-          </Button>
+          <span style={{ fontSize: '0.75rem', color: '#888', fontFamily: 'var(--font-mono)' }}>
+            {match[1]} {meta && <span style={{ color: '#ccc', marginLeft: '6px' }}>{meta}</span>}
+          </span>
+          <button
+            onClick={handleApply}
+            disabled={applying}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'var(--accent-cyan)',
+              color: '#000',
+              border: 'none',
+              padding: '6px 12px',
+              fontSize: '0.75rem',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+            }}
+          >
+            <CheckCircle size={14} style={{ color: '#000' }} />
+            {applying ? 'Applying...' : 'Apply to File'}
+          </button>
         </div>
         <pre className={className} style={{
-          margin: 0, padding: '12px', borderBottomLeftRadius: 'var(--radius-md)',
-          borderBottomRightRadius: 'var(--radius-md)', background: 'rgba(0,0,0,0.1)',
+          margin: 0, padding: '16px', background: '#000', color: '#fff',
           overflowX: 'auto',
+          fontSize: '0.875rem',
+          fontFamily: 'var(--font-mono)'
         }} {...props}>
           <code className={className} {...props}>
             {children}
@@ -95,16 +132,16 @@ const MessageBubble: React.FC<{ message: ChatMessage; index: number }> = ({
       {/* Avatar */}
       <div style={{
         width: 32, height: 32, flexShrink: 0,
-        borderRadius: isUser ? 'var(--radius-md)' : 'var(--radius-full)',
+        border: '2px solid #000',
         background: isUser
-          ? 'linear-gradient(135deg, var(--accent-purple), #A78BFA)'
-          : 'linear-gradient(135deg, var(--accent-cyan), #0EA5E9)',
+          ? 'var(--accent-purple)'
+          : 'var(--accent-cyan)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: isUser ? 'var(--shadow-glow-purple)' : 'var(--shadow-glow-cyan)',
+        boxShadow: '2px 2px 0px #000',
       }}>
         {isUser
-          ? <User size={14} style={{ color: '#fff' }} />
-          : <Bot size={14} style={{ color: '#0F172A' }} />
+          ? <User size={14} style={{ color: '#000' }} />
+          : <Bot size={14} style={{ color: '#000' }} />
         }
       </div>
 
@@ -112,14 +149,11 @@ const MessageBubble: React.FC<{ message: ChatMessage; index: number }> = ({
       <div style={{ maxWidth: '78%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <div style={{
           padding: isUser ? '10px 16px' : '12px 16px',
-          borderRadius: isUser
-            ? 'var(--radius-xl) var(--radius-sm) var(--radius-xl) var(--radius-xl)'
-            : 'var(--radius-sm) var(--radius-xl) var(--radius-xl) var(--radius-xl)',
           background: isUser
-            ? 'linear-gradient(135deg, var(--accent-purple-dim), rgba(139,92,246,0.08))'
-            : 'var(--bg-elevated)',
-          border: `1px solid ${isUser ? 'rgba(139,92,246,0.25)' : 'var(--border-base)'}`,
-          boxShadow: 'var(--shadow-sm)',
+            ? '#fff'
+            : '#fff',
+          border: 'var(--border-width) solid #000',
+          boxShadow: '4px 4px 0px #000',
         }}>
           {message.isStreaming && !message.content ? (
             <ThinkingDots />
@@ -222,25 +256,26 @@ export const AIChat: React.FC = () => {
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', height: '100%',
-      background: 'var(--bg-surface)', borderRadius: 'var(--radius-xl)',
-      border: '1px solid var(--border-base)', overflow: 'hidden',
+      background: 'var(--bg-surface)', border: 'var(--border-width) solid #000',
+      boxShadow: '4px 4px 0px #000', overflow: 'hidden',
     }}>
 
       {/* Header */}
       <div style={{
         padding: '14px 20px',
-        borderBottom: '1px solid var(--border-base)',
+        borderBottom: 'var(--border-width) solid #000',
+        background: '#fff',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: 32, height: 32, borderRadius: 'var(--radius-full)',
-            background: 'linear-gradient(135deg, var(--accent-cyan), #0EA5E9)',
+            width: 32, height: 32,
+            background: 'var(--accent-cyan)', border: '2px solid #000',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: 'var(--shadow-glow-cyan)',
+            boxShadow: '2px 2px 0px #000',
           }}>
-            <Bot size={16} style={{ color: '#0F172A' }} />
+            <Bot size={16} style={{ color: '#000' }} />
           </div>
           <div>
             <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
@@ -248,9 +283,8 @@ export const AIChat: React.FC = () => {
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <div style={{
-                width: 6, height: 6, borderRadius: '50%',
+                width: 10, height: 10, flexShrink: 0, border: '2px solid #000',
                 background: isConnected ? 'var(--success)' : 'var(--danger)',
-                ...(isConnected && { boxShadow: '0 0 6px var(--success)' }),
               }} />
               <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
                 {isConnected ? activeModel : 'Ollama Offline'}
@@ -303,9 +337,9 @@ export const AIChat: React.FC = () => {
                     onClick={() => setInput(a.prompt)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '6px',
-                      padding: '6px 12px', borderRadius: 'var(--radius-full)',
-                      background: 'var(--bg-card)', border: '1px solid var(--border-base)',
-                      color: 'var(--text-secondary)', fontSize: '0.8rem',
+                      padding: '8px 12px',
+                      background: '#fff', border: '2px solid #000', boxShadow: '2px 2px 0px #000',
+                      color: '#000', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase',
                       cursor: 'pointer', fontFamily: 'var(--font-sans)',
                     }}
                   >
@@ -347,23 +381,23 @@ export const AIChat: React.FC = () => {
       {/* Input Area */}
       <div style={{
         padding: '14px 16px',
-        borderTop: '1px solid var(--border-base)',
+        borderTop: 'var(--border-width) solid #000',
+        background: '#fff',
         flexShrink: 0,
       }}>
         <div style={{
           display: 'flex', gap: '10px', alignItems: 'flex-end',
-          background: 'var(--bg-base)',
-          border: '1px solid var(--border-base)',
-          borderRadius: 'var(--radius-lg)',
+          background: '#fff',
+          border: 'var(--border-width) solid #000',
           padding: '10px 12px',
-          boxShadow: 'var(--shadow-inset)',
-          transition: 'border-color var(--transition-fast)',
+          boxShadow: '4px 4px 0px #000',
+          transition: 'all 0.1s step-end',
         }}
           onFocusCapture={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-accent)';
+            e.currentTarget.style.background = 'var(--accent-yellow)';
           }}
           onBlurCapture={(e) => {
-            e.currentTarget.style.borderColor = 'var(--border-base)';
+            e.currentTarget.style.background = '#fff';
           }}
         >
           <textarea

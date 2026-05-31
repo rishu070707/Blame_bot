@@ -8,6 +8,7 @@ Featuring a stunning "Premium Dark Neumorphism" interface, BlameBot seamlessly i
 ## ✨ Features
 
 - **100% Offline & Private:** Powered by your local models (e.g., DeepSeek Coder, Llama 3) via Ollama. No subscriptions, no cloud telemetry.
+- **VS Code-like Auto-Fix:** BlameBot can write code directly to your local file system. Click "Apply Fix to File" on audit reports or "Save to File" in chat to instantly patch your codebase.
 - **Lightning Fast Code Search:** In-memory TF-IDF search engine indexes your code dynamically as you type.
 - **Automated Security & Performance Audits:** A native Rust backend crawls your file tree instantly, detecting hardcoded secrets, injection risks, N+1 queries, and blocking I/O with AI-suggested fixes.
 - **Floating Command Bar:** Summon BlameBot from anywhere on your OS using `Ctrl+Space` for rapid AI queries and project navigation.

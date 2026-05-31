@@ -32,51 +32,50 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       justifyContent: 'center',
       gap: '8px',
       fontFamily: 'var(--font-sans)',
-      fontWeight: 500,
+      fontWeight: 800,
+      textTransform: 'uppercase',
       cursor: disabled || isLoading ? 'not-allowed' : 'pointer',
       opacity: disabled || isLoading ? 0.5 : 1,
-      transition: 'all var(--transition-fast)',
-      border: '1px solid transparent',
+      transition: 'all 0.1s step-end',
+      border: 'var(--border-width) solid #000',
       userSelect: 'none',
       whiteSpace: 'nowrap',
-      letterSpacing: '-0.01em',
+      letterSpacing: '0.05em',
+      position: 'relative',
     };
 
     const sizeStyles: Record<string, React.CSSProperties> = {
-      sm: { padding: '6px 12px', fontSize: '0.8125rem', borderRadius: 'var(--radius-sm)' },
-      md: { padding: '8px 16px', fontSize: '0.875rem', borderRadius: 'var(--radius-md)' },
-      lg: { padding: '12px 24px', fontSize: '1rem', borderRadius: 'var(--radius-md)' },
-      icon: { padding: '8px', fontSize: '0.875rem', borderRadius: 'var(--radius-md)', aspectRatio: '1' },
+      sm: { padding: '6px 12px', fontSize: '0.8125rem' },
+      md: { padding: '8px 16px', fontSize: '0.875rem' },
+      lg: { padding: '12px 24px', fontSize: '1rem' },
+      icon: { padding: '8px', fontSize: '0.875rem', aspectRatio: '1' },
     };
 
     const variantStyles: Record<string, React.CSSProperties> = {
       primary: {
-        background: 'linear-gradient(135deg, var(--accent-cyan), #0EA5E9)',
-        color: '#0F172A',
-        fontWeight: 600,
-        borderColor: 'transparent',
-        boxShadow: '0 4px 15px rgba(34, 211, 238, 0.3)',
+        background: 'var(--accent-cyan)',
+        color: '#000',
+        boxShadow: 'var(--shadow-raised)',
       },
       secondary: {
-        background: 'var(--bg-card)',
-        color: 'var(--text-primary)',
-        borderColor: 'var(--border-base)',
-        boxShadow: 'var(--shadow-sm)',
+        background: '#fff',
+        color: '#000',
+        boxShadow: 'var(--shadow-raised)',
       },
       ghost: {
         background: 'transparent',
-        color: 'var(--text-muted)',
+        color: '#000',
         borderColor: 'transparent',
       },
       danger: {
-        background: 'var(--danger-dim)',
-        color: 'var(--danger)',
-        borderColor: 'rgba(239,68,68,0.3)',
+        background: 'var(--danger)',
+        color: '#000',
+        boxShadow: 'var(--shadow-raised)',
       },
       success: {
-        background: 'var(--success-dim)',
-        color: 'var(--success)',
-        borderColor: 'rgba(16,185,129,0.3)',
+        background: 'var(--success)',
+        color: '#000',
+        boxShadow: 'var(--shadow-raised)',
       },
     };
 
@@ -84,8 +83,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <motion.button
         ref={ref}
         style={{ ...baseStyles, ...sizeStyles[size], ...variantStyles[variant] }}
-        whileHover={!disabled && !isLoading ? { scale: 1.02 } : undefined}
-        whileTap={!disabled && !isLoading ? { scale: 0.97 } : undefined}
+        whileHover={!disabled && !isLoading && variant !== 'ghost' ? { backgroundColor: 'var(--accent-yellow)' } : undefined}
+        whileTap={!disabled && !isLoading && variant !== 'ghost' ? { x: 4, y: 4, boxShadow: '0px 0px 0px #000' } : undefined}
         disabled={disabled || isLoading}
         {...(props as any)}
       >
@@ -127,38 +126,37 @@ export const Card: React.FC<CardProps> = ({
     lg: 'var(--space-6)',
   };
 
-  const glowMap = {
-    none: 'var(--shadow-raised)',
-    cyan: 'var(--shadow-raised), var(--shadow-glow-cyan)',
-    purple: 'var(--shadow-raised), var(--shadow-glow-purple)',
-  };
-
   return (
     <motion.div
       onClick={onClick}
       style={{
-        background: 'var(--bg-card)',
-        border: `1px solid ${glow !== 'none' ? (glow === 'cyan' ? 'rgba(34,211,238,0.2)' : 'rgba(139,92,246,0.2)') : 'var(--border-base)'}`,
-        borderRadius: 'var(--radius-xl)',
-        boxShadow: glowMap[glow],
+        background: glow === 'cyan' ? 'var(--accent-cyan-dim)' : glow === 'purple' ? 'var(--accent-purple-dim)' : '#fff',
+        border: `var(--border-width) solid #000`,
+        boxShadow: hover ? 'var(--shadow-raised)' : 'var(--shadow-sm)',
         padding: paddingMap[padding],
         cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.1s step-end',
+        position: 'relative',
         ...style,
       }}
       whileHover={
         hover
           ? {
-              y: -2,
-              borderColor: glow === 'cyan'
-                ? 'rgba(34,211,238,0.4)'
-                : glow === 'purple'
-                ? 'rgba(139,92,246,0.4)'
-                : 'var(--border-hover)',
-              boxShadow: glowMap[glow].replace('var(--shadow-raised)', '16px 16px 32px rgba(0,0,0,0.4), -10px -10px 30px rgba(255,255,255,0.04)'),
+              x: -4,
+              y: -4,
+              boxShadow: '8px 8px 0px #000',
             }
           : undefined
       }
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      whileTap={
+        hover
+          ? {
+              x: 0,
+              y: 0,
+              boxShadow: 'var(--shadow-sm)',
+            }
+          : undefined
+      }
     >
       {children}
     </motion.div>
@@ -179,7 +177,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
         {label && (
-          <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+          <label style={{ fontSize: '0.875rem', color: '#000', fontWeight: 800, textTransform: 'uppercase' }}>
             {label}
           </label>
         )}
@@ -187,7 +185,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {leftIcon && (
             <div style={{
               position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
-              color: 'var(--text-dim)', display: 'flex', alignItems: 'center', pointerEvents: 'none',
+              color: '#000', display: 'flex', alignItems: 'center', pointerEvents: 'none',
             }}>
               {leftIcon}
             </div>
@@ -197,37 +195,37 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             style={{
               width: '100%',
               padding: `10px ${rightIcon ? '40px' : '14px'} 10px ${leftIcon ? '40px' : '14px'}`,
-              background: 'var(--bg-base)',
-              border: `1px solid ${error ? 'var(--danger)' : 'var(--border-base)'}`,
-              borderRadius: 'var(--radius-md)',
-              boxShadow: 'var(--shadow-inset)',
-              color: 'var(--text-primary)',
-              fontFamily: 'var(--font-sans)',
+              background: '#fff',
+              border: `var(--border-width) solid #000`,
+              boxShadow: 'var(--shadow-sm)',
+              color: '#000',
+              fontFamily: 'var(--font-mono)',
               fontSize: '0.875rem',
-              transition: 'all var(--transition-fast)',
+              fontWeight: 600,
+              transition: 'all 0.1s step-end',
               ...style,
             }}
             onFocus={(e) => {
-              e.target.style.borderColor = error ? 'var(--danger)' : 'var(--border-accent)';
-              e.target.style.boxShadow = `var(--shadow-inset), 0 0 0 2px var(--accent-cyan-dim)`;
+              e.target.style.background = 'var(--accent-yellow)';
+              e.target.style.boxShadow = `4px 4px 0px #000`;
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = error ? 'var(--danger)' : 'var(--border-base)';
-              e.target.style.boxShadow = 'var(--shadow-inset)';
+              e.target.style.background = '#fff';
+              e.target.style.boxShadow = 'var(--shadow-sm)';
             }}
             {...props}
           />
           {rightIcon && (
             <div style={{
               position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-              color: 'var(--text-dim)', display: 'flex', alignItems: 'center',
+              color: '#000', display: 'flex', alignItems: 'center',
             }}>
               {rightIcon}
             </div>
           )}
         </div>
         {error && (
-          <span style={{ fontSize: '0.75rem', color: 'var(--danger)' }}>{error}</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--danger)', fontWeight: 800, textTransform: 'uppercase' }}>{error}</span>
         )}
       </div>
     );
@@ -244,23 +242,23 @@ interface BadgeProps {
 }
 
 const BADGE_STYLES: Record<string, React.CSSProperties> = {
-  critical: { background: 'var(--danger-dim)', color: 'var(--danger)', border: '1px solid rgba(239,68,68,0.3)' },
-  high:     { background: 'rgba(249,115,22,0.15)', color: '#F97316', border: '1px solid rgba(249,115,22,0.3)' },
-  medium:   { background: 'var(--warning-dim)', color: 'var(--warning)', border: '1px solid rgba(245,158,11,0.3)' },
-  low:      { background: 'var(--accent-cyan-dim)', color: 'var(--accent-cyan)', border: '1px solid rgba(34,211,238,0.3)' },
-  info:     { background: 'rgba(148,163,184,0.1)', color: 'var(--text-muted)', border: '1px solid rgba(148,163,184,0.2)' },
-  success:  { background: 'var(--success-dim)', color: 'var(--success)', border: '1px solid rgba(16,185,129,0.3)' },
-  purple:   { background: 'var(--accent-purple-dim)', color: 'var(--accent-purple)', border: '1px solid rgba(139,92,246,0.3)' },
-  cyan:     { background: 'var(--accent-cyan-dim)', color: 'var(--accent-cyan)', border: '1px solid rgba(34,211,238,0.3)' },
+  critical: { background: 'var(--danger)', color: '#000', border: 'var(--border-width) solid #000' },
+  high:     { background: '#F97316', color: '#000', border: 'var(--border-width) solid #000' },
+  medium:   { background: 'var(--warning)', color: '#000', border: 'var(--border-width) solid #000' },
+  low:      { background: 'var(--accent-cyan)', color: '#000', border: 'var(--border-width) solid #000' },
+  info:     { background: '#e2e8f0', color: '#000', border: 'var(--border-width) solid #000' },
+  success:  { background: 'var(--success)', color: '#000', border: 'var(--border-width) solid #000' },
+  purple:   { background: 'var(--accent-purple)', color: '#000', border: 'var(--border-width) solid #000' },
+  cyan:     { background: 'var(--accent-cyan)', color: '#000', border: 'var(--border-width) solid #000' },
 };
 
 export const Badge: React.FC<BadgeProps> = ({ children, variant = 'info', size = 'sm' }) => (
   <span style={{
     display: 'inline-flex', alignItems: 'center',
-    padding: size === 'sm' ? '2px 8px' : '4px 10px',
-    fontSize: size === 'sm' ? '0.7rem' : '0.8125rem',
-    fontWeight: 600, letterSpacing: '0.05em',
-    textTransform: 'uppercase', borderRadius: 'var(--radius-full)',
+    padding: size === 'sm' ? '4px 8px' : '6px 12px',
+    fontSize: size === 'sm' ? '0.75rem' : '0.875rem',
+    fontWeight: 900, letterSpacing: '0.05em',
+    textTransform: 'uppercase', boxShadow: '2px 2px 0px #000',
     ...BADGE_STYLES[variant],
   }}>
     {children}
@@ -282,7 +280,7 @@ export const Progress: React.FC<ProgressProps> = ({
   value,
   color = 'var(--accent-cyan)',
   label,
-  height = 6,
+  height = 12,
   showValue = false,
   style,
 }) => {
@@ -292,22 +290,22 @@ export const Progress: React.FC<ProgressProps> = ({
     <div style={style}>
       {(label || showValue) && (
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', alignItems: 'center' }}>
-          {label && <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>{label}</span>}
-          {showValue && <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{clampedValue}%</span>}
+          {label && <span style={{ fontSize: '0.875rem', color: '#000', fontWeight: 800, textTransform: 'uppercase' }}>{label}</span>}
+          {showValue && <span style={{ fontSize: '0.875rem', color: '#000', fontWeight: 900 }}>{clampedValue}%</span>}
         </div>
       )}
       <div style={{
-        height: `${height}px`, borderRadius: 'var(--radius-full)',
-        background: 'var(--bg-base)', boxShadow: 'var(--shadow-inset-sm)', overflow: 'hidden',
+        height: `${height}px`,
+        background: '#fff', border: 'var(--border-width) solid #000', boxShadow: 'var(--shadow-sm)', overflow: 'hidden',
       }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${clampedValue}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
           style={{
-            height: '100%', borderRadius: 'var(--radius-full)',
-            background: `linear-gradient(90deg, ${color}, ${color}cc)`,
-            boxShadow: `0 0 10px ${color}50`,
+            height: '100%',
+            background: color,
+            borderRight: 'var(--border-width) solid #000',
           }}
         />
       </div>
@@ -324,13 +322,12 @@ interface SpinnerProps {
 
 export const LoadingSpinner: React.FC<SpinnerProps> = ({
   size = 20,
-  color = 'var(--accent-cyan)',
+  color = '#000',
 }) => (
   <motion.div
     style={{
       width: size, height: size, flexShrink: 0,
-      borderRadius: '50%',
-      border: `2px solid ${color}20`,
+      border: `3px solid ${color}40`,
       borderTopColor: color,
     }}
     animate={{ rotate: 360 }}
@@ -346,15 +343,15 @@ export const ThinkingDots: React.FC = () => (
       <motion.div
         key={i}
         style={{
-          width: 6, height: 6, borderRadius: '50%',
-          background: 'var(--accent-cyan)',
+          width: 10, height: 10,
+          background: '#000',
         }}
-        animate={{ y: [0, -6, 0], opacity: [0.3, 1, 0.3] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1, ease: 'linear' }}
       />
     ))}
-    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '6px' }}>
-      AI is thinking...
+    <span style={{ fontSize: '0.875rem', color: '#000', marginLeft: '6px', fontWeight: 800, textTransform: 'uppercase' }}>
+      PROCESSING...
     </span>
   </div>
 );
@@ -362,10 +359,10 @@ export const ThinkingDots: React.FC = () => (
 // ─── Divider ──────────────────────────────────────────────────
 
 export const Divider: React.FC<{ label?: string }> = ({ label }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '4px 0' }}>
-    <div style={{ flex: 1, height: '1px', background: 'var(--border-base)' }} />
-    {label && <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>{label}</span>}
-    {label && <div style={{ flex: 1, height: '1px', background: 'var(--border-base)' }} />}
+  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '8px 0' }}>
+    <div style={{ flex: 1, height: '3px', background: '#000' }} />
+    {label && <span style={{ fontSize: '0.875rem', color: '#000', whiteSpace: 'nowrap', fontWeight: 800, textTransform: 'uppercase' }}>{label}</span>}
+    {label && <div style={{ flex: 1, height: '3px', background: '#000' }} />}
   </div>
 );
 
@@ -384,7 +381,7 @@ export const ScoreRing: React.FC<ScoreRingProps> = ({
   color = 'var(--accent-cyan)',
   label,
 }) => {
-  const radius = (size - 12) / 2;
+  const radius = (size - 16) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDash = (score / 100) * circumference;
 
@@ -397,22 +394,21 @@ export const ScoreRing: React.FC<ScoreRingProps> = ({
   const ringColor = color === 'var(--accent-cyan)' ? getColor() : color;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-      <div style={{ position: 'relative', width: size, height: size }}>
-        <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+      <div style={{ position: 'relative', width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, border: 'var(--border-width) solid #000', borderRadius: '50%', boxShadow: '4px 4px 0px #000', background: '#fff' }}></div>
+        <svg width={size} height={size} style={{ transform: 'rotate(-90deg)', position: 'absolute' }}>
           <circle
             cx={size / 2} cy={size / 2} r={radius}
-            fill="none" stroke="var(--bg-base)" strokeWidth={8}
+            fill="none" stroke="#e2e8f0" strokeWidth={10}
           />
           <motion.circle
             cx={size / 2} cy={size / 2} r={radius}
-            fill="none" stroke={ringColor} strokeWidth={8}
-            strokeLinecap="round"
+            fill="none" stroke={ringColor} strokeWidth={10}
             strokeDasharray={`${circumference}`}
             initial={{ strokeDashoffset: circumference }}
             animate={{ strokeDashoffset: circumference - strokeDash }}
-            transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }}
-            style={{ filter: `drop-shadow(0 0 6px ${ringColor})` }}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
           />
         </svg>
         <div style={{
@@ -423,14 +419,14 @@ export const ScoreRing: React.FC<ScoreRingProps> = ({
           <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            style={{ fontSize: size > 60 ? '1.25rem' : '0.875rem', fontWeight: 700, color: ringColor }}
+            transition={{ delay: 0.2 }}
+            style={{ fontSize: size > 60 ? '1.5rem' : '1rem', fontWeight: 900, color: '#000', textShadow: `2px 2px 0px ${ringColor}` }}
           >
             {score}
           </motion.span>
         </div>
       </div>
-      {label && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{label}</span>}
+      {label && <span style={{ fontSize: '0.875rem', color: '#000', fontWeight: 800, textTransform: 'uppercase' }}>{label}</span>}
     </div>
   );
 };
@@ -450,13 +446,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description
     animate={{ opacity: 1, y: 0 }}
     style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', gap: '12px', padding: '48px 24px', textAlign: 'center',
+      justifyContent: 'center', gap: '16px', padding: '48px 24px', textAlign: 'center',
+      background: '#fff', border: 'var(--border-width) solid #000', boxShadow: 'var(--shadow-raised)',
     }}
   >
-    <div style={{ color: 'var(--text-dim)', opacity: 0.6 }}>{icon}</div>
+    <div style={{ color: '#000' }}>{icon}</div>
     <div>
-      <p style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>{title}</p>
-      {description && <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{description}</p>}
+      <p style={{ fontWeight: 900, color: '#000', marginBottom: '8px', textTransform: 'uppercase', fontSize: '1.25rem' }}>{title}</p>
+      {description && <p style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600 }}>{description}</p>}
     </div>
     {action}
   </motion.div>
@@ -472,10 +469,10 @@ interface ToastProps {
 }
 
 const TOAST_COLORS = {
-  success: { border: 'rgba(16,185,129,0.3)', icon: 'var(--success)', bg: 'var(--success-dim)' },
-  error:   { border: 'rgba(239,68,68,0.3)',  icon: 'var(--danger)',  bg: 'var(--danger-dim)' },
-  warning: { border: 'rgba(245,158,11,0.3)', icon: 'var(--warning)', bg: 'var(--warning-dim)' },
-  info:    { border: 'rgba(34,211,238,0.3)', icon: 'var(--accent-cyan)', bg: 'var(--accent-cyan-dim)' },
+  success: { bg: 'var(--success)', icon: '#000' },
+  error:   { bg: 'var(--danger)',  icon: '#000' },
+  warning: { bg: 'var(--warning)', icon: '#000' },
+  info:    { bg: 'var(--accent-cyan)', icon: '#000' },
 };
 
 export const Toast: React.FC<ToastProps> = ({ type, title, message, onClose }) => {
@@ -486,25 +483,25 @@ export const Toast: React.FC<ToastProps> = ({ type, title, message, onClose }) =
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 60, scale: 0.95 }}
       style={{
-        background: 'var(--bg-card)',
-        border: `1px solid ${colors.border}`,
-        borderRadius: 'var(--radius-lg)',
-        padding: '12px 16px',
-        display: 'flex', alignItems: 'flex-start', gap: '10px',
-        boxShadow: 'var(--shadow-raised)',
+        background: colors.bg,
+        border: `var(--border-width) solid #000`,
+        padding: '16px',
+        display: 'flex', alignItems: 'flex-start', gap: '12px',
+        boxShadow: '8px 8px 0px #000',
         maxWidth: '320px', minWidth: '240px',
-        borderLeft: `3px solid ${colors.icon}`,
+        color: '#000',
       }}
     >
       <div style={{ flex: 1 }}>
-        <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>{title}</p>
-        {message && <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '2px' }}>{message}</p>}
+        <p style={{ fontWeight: 900, fontSize: '1rem', textTransform: 'uppercase' }}>{title}</p>
+        {message && <p style={{ fontSize: '0.875rem', fontWeight: 600, marginTop: '4px' }}>{message}</p>}
       </div>
       <button
         onClick={onClose}
         style={{
-          background: 'none', border: 'none', color: 'var(--text-dim)',
-          cursor: 'pointer', padding: '2px', flexShrink: 0,
+          background: '#fff', border: '2px solid #000', color: '#000',
+          cursor: 'pointer', padding: '4px', flexShrink: 0,
+          fontWeight: 900, boxShadow: '2px 2px 0px #000',
         }}
       >
         ×
@@ -512,5 +509,3 @@ export const Toast: React.FC<ToastProps> = ({ type, title, message, onClose }) =
     </motion.div>
   );
 };
-
-// End of component library

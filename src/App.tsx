@@ -40,14 +40,14 @@ const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
       style={{
         display: 'flex', flexDirection: 'column',
         background: 'var(--bg-surface)',
-        borderRight: '1px solid var(--border-base)',
+        borderRight: 'var(--border-width) solid var(--border-base)',
         height: '100%', flexShrink: 0, overflow: 'hidden',
       }}
     >
       {/* Logo */}
       <div style={{
         padding: collapsed ? '16px 0' : '16px 16px',
-        borderBottom: '1px solid var(--border-base)',
+        borderBottom: 'var(--border-width) solid var(--border-base)',
         display: 'flex', alignItems: 'center',
         justifyContent: collapsed ? 'center' : 'space-between',
         flexShrink: 0,
@@ -56,16 +56,14 @@ const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
               width: 28, height: 28, borderRadius: 'var(--radius-md)',
-              background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-purple))',
+              background: 'var(--accent-cyan)', border: '2px solid #000',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
-              <Zap size={15} style={{ color: '#fff' }} />
+              <Zap size={15} style={{ color: '#000' }} />
             </div>
             <span style={{
-              fontWeight: 700, fontSize: '0.9375rem', letterSpacing: '-0.02em',
-              background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-purple))',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              fontWeight: 900, fontSize: '1rem', textTransform: 'uppercase', color: '#000',
             }}>
               BlameBot
             </span>
@@ -74,10 +72,10 @@ const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
         {collapsed && (
           <div style={{
             width: 28, height: 28, borderRadius: 'var(--radius-md)',
-            background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-purple))',
+            background: 'var(--accent-cyan)', border: '2px solid #000',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Zap size={15} style={{ color: '#fff' }} />
+            <Zap size={15} style={{ color: '#000' }} />
           </div>
         )}
         {!collapsed && (
@@ -99,10 +97,10 @@ const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
           style={{
             width: '100%', padding: collapsed ? '8px' : '8px 12px',
             display: 'flex', alignItems: 'center', gap: '8px',
-            background: 'var(--bg-card)', border: '1px solid var(--border-base)',
+            background: 'var(--accent-yellow)', border: 'var(--border-width) solid var(--border-base)',
             borderRadius: 'var(--radius-md)', cursor: 'pointer',
-            color: 'var(--text-muted)', fontFamily: 'var(--font-sans)',
-            fontSize: '0.8125rem', boxShadow: 'var(--shadow-sm)',
+            color: '#000', fontFamily: 'var(--font-sans)', fontWeight: 800, textTransform: 'uppercase',
+            fontSize: '0.8125rem', boxShadow: 'var(--shadow-raised)',
             justifyContent: collapsed ? 'center' : 'flex-start',
           }}
         >
@@ -112,8 +110,8 @@ const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
               <span style={{ flex: 1, textAlign: 'left' }}>Ask AI...</span>
               <kbd style={{
                 fontSize: '0.65rem', padding: '1px 5px', borderRadius: '3px',
-                background: 'var(--bg-base)', border: '1px solid var(--border-base)',
-                color: 'var(--text-dim)', fontFamily: 'var(--font-mono)',
+                background: '#fff', border: '2px solid #000',
+                color: '#000', fontFamily: 'var(--font-mono)', fontWeight: 900
               }}>⌃ Space</kbd>
             </>
           )}
@@ -132,20 +130,22 @@ const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
               style={{
                 width: '100%', padding: collapsed ? '10px' : '10px 12px',
                 display: 'flex', alignItems: 'center', gap: '10px',
-                background: isActive ? 'var(--accent-cyan-dim)' : 'transparent',
-                border: `1px solid ${isActive ? 'rgba(34,211,238,0.2)' : 'transparent'}`,
+                background: isActive ? 'var(--accent-cyan)' : 'transparent',
+                border: isActive ? 'var(--border-width) solid #000' : 'var(--border-width) solid transparent',
+                boxShadow: isActive ? '4px 4px 0px #000' : 'none',
                 borderRadius: 'var(--radius-md)', cursor: 'pointer',
-                color: isActive ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                fontFamily: 'var(--font-sans)', fontSize: '0.875rem', fontWeight: isActive ? 600 : 400,
-                textAlign: 'left', transition: 'all var(--transition-fast)',
+                color: isActive ? '#000' : 'var(--text-muted)',
+                fontFamily: 'var(--font-sans)', fontSize: '0.875rem', fontWeight: 800, textTransform: 'uppercase',
+                textAlign: 'left', transition: 'all 0.1s step-end',
                 justifyContent: collapsed ? 'center' : 'flex-start',
+                marginBottom: '4px',
               }}
               title={collapsed ? label : undefined}
             >
               {icon}
               {!collapsed && <span style={{ flex: 1 }}>{label}</span>}
               {!collapsed && isActive && (
-                <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent-cyan)', flexShrink: 0 }} />
+                <div style={{ width: 8, height: 8, background: '#000', flexShrink: 0, border: '1px solid #000' }} />
               )}
             </motion.button>
           );
@@ -154,13 +154,14 @@ const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
 
       {/* Collapse Toggle (when expanded) */}
       {!collapsed && (
-        <div style={{ padding: '10px', borderTop: '1px solid var(--border-base)', flexShrink: 0 }}>
+        <div style={{ padding: '10px', borderTop: 'var(--border-width) solid var(--border-base)', flexShrink: 0 }}>
           <button
             onClick={toggleSidebar}
             style={{
-              width: '100%', padding: '6px', background: 'none', border: 'none',
-              color: 'var(--text-dim)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-              fontSize: '0.75rem', fontFamily: 'var(--font-sans)',
+              width: '100%', padding: '8px', background: '#fff', border: '2px solid #000',
+              color: '#000', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
+              fontSize: '0.75rem', fontFamily: 'var(--font-sans)', fontWeight: 800, textTransform: 'uppercase',
+              boxShadow: '2px 2px 0px #000',
             }}
           >
             <Menu size={13} /> Collapse
@@ -171,15 +172,15 @@ const Sidebar: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
       {/* Ollama Status */}
       {!collapsed && (
         <div style={{
-          padding: '10px 14px', borderTop: '1px solid var(--border-base)',
+          padding: '10px 14px', borderTop: 'var(--border-width) solid var(--border-base)',
           display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0,
         }}>
           <div style={{
-            width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
+            width: 10, height: 10, flexShrink: 0,
             background: isConnected ? 'var(--success)' : 'var(--danger)',
-            boxShadow: isConnected ? '0 0 6px var(--success)' : 'none',
+            border: '2px solid #000'
           }} />
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          <span style={{ fontSize: '0.75rem', color: '#000', fontWeight: 800, textTransform: 'uppercase' }}>
             {isConnected ? 'Ollama Running' : 'Ollama Offline'}
           </span>
         </div>
