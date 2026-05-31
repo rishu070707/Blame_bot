@@ -1,5 +1,5 @@
-﻿import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
+import { invoke } from "@tauri-apps/api/core";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import type { FileNode } from "../types";
 
 export interface ScanResult {
@@ -49,3 +49,17 @@ export async function openInExplorer(path: string): Promise<void> {
 
 export async function hideWindow(): Promise<void> { return invoke("hide_window"); }
 export async function showWindow(): Promise<void> { return invoke("show_window"); }
+
+export async function applyCodeEdit(path: string, content: string): Promise<void> {
+  return invoke("apply_code_edit", { path, content });
+}
+
+export async function replaceInFile(path: string, target: string, replacement: string): Promise<void> {
+  return invoke("replace_in_file", { path, target, replacement });
+}
+
+export async function saveFileDialog(defaultPath?: string): Promise<string | null> {
+  const selected = await save({ title: "Apply Code to File", defaultPath });
+  return selected as string | null;
+}
+

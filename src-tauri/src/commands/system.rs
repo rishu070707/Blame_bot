@@ -1,5 +1,5 @@
-// ============================================================
-// BlameBot — System Commands
+﻿// ============================================================
+// BlameBot â€” System Commands
 // App data, window management, file system helpers
 // ============================================================
 
@@ -91,7 +91,7 @@ pub fn show_window<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
     Ok(())
 }
 
-// ─── App Data Storage (simple KV store using files) ──────────
+// â”€â”€â”€ App Data Storage (simple KV store using files) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 fn get_data_dir<R: Runtime>(app: &AppHandle<R>) -> PathBuf {
     app.path().app_data_dir()
@@ -123,4 +123,24 @@ pub fn load_app_data<R: Runtime>(
     } else {
         Ok(None)
     }
+}
+
+#[tauri::command]
+pub fn apply_code_edit(path: String, content: String) -> Result<(), String> {
+    fs::write(&path, content).map_err(|e| format!("Failed to write file {}: {}", path, e))
+}
+
+#[tauri::command]
+pub fn replace_in_file(path: String, target: String, replacement: String) -> Result<(), String> {
+    let file_content = fs::read_to_string(&path)
+        .map_err(|e| format!("Failed to read file {}: {}", path, e))?;
+    
+    if !file_content.contains(&target) {
+        return Err("Original snippet not found in the file.".into());
+    }
+
+    let new_content = file_content.replacen(&target, &replacement, 1);
+    
+    fs::write(&path, new_content)
+        .map_err(|e| format!("Failed to write file {}: {}", path, e))
 }

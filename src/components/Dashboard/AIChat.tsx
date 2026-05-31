@@ -5,11 +5,64 @@ import remarkGfm from 'remark-gfm';
 import {
   Send, Trash2, Copy, Download, Zap, Bot, User,
   StopCircle, Code2, AlertTriangle, Terminal, RefreshCw,
+  CheckCircle,
 } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { useOllama } from '../../hooks/useOllama';
 import { ThinkingDots, Button, EmptyState, LoadingSpinner } from '../ui';
+import { applyCodeEdit, saveFileDialog } from '../../services/tauriService';
 import type { ChatMessage } from '../../types';
+
+// ─── Custom Code Block ────────────────────────────────────────
+
+const CustomCodeBlock = ({ node, inline, className, children, ...props }: any) => {
+  const match = /language-(\w+)/.exec(className || '');
+  const [applying, setApplying] = useState(false);
+
+  const handleApply = async () => {
+    try {
+      setApplying(true);
+      const codeToApply = String(children).replace(/\n$/, '');
+      const selectedPath = await saveFileDialog();
+      if (selectedPath) {
+        await applyCodeEdit(selectedPath, codeToApply);
+        alert('File saved successfully: ' + selectedPath);
+      }
+    } catch (e: any) {
+      alert('Failed to save file: ' + e);
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  if (!inline && match) {
+    return (
+      <div style={{ position: 'relative', marginTop: '12px', marginBottom: '12px' }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          background: 'rgba(0,0,0,0.2)', padding: '6px 12px',
+          borderTopLeftRadius: 'var(--radius-md)', borderTopRightRadius: 'var(--radius-md)',
+          borderBottom: '1px solid var(--border-base)',
+        }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{match[1]}</span>
+          <Button variant="primary" size="sm" onClick={handleApply} isLoading={applying} leftIcon={<CheckCircle size={12} />}>
+            Save to File
+          </Button>
+        </div>
+        <pre className={className} style={{
+          margin: 0, padding: '12px', borderBottomLeftRadius: 'var(--radius-md)',
+          borderBottomRightRadius: 'var(--radius-md)', background: 'rgba(0,0,0,0.1)',
+          overflowX: 'auto',
+        }} {...props}>
+          <code className={className} {...props}>
+            {children}
+          </code>
+        </pre>
+      </div>
+    );
+  }
+  return <code className={className} {...props}>{children}</code>;
+};
 
 // ─── Message Bubble ───────────────────────────────────────────
 
@@ -72,7 +125,12 @@ const MessageBubble: React.FC<{ message: ChatMessage; index: number }> = ({
             <ThinkingDots />
           ) : (
             <div className="prose" style={{ color: 'var(--text-primary)' }}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  code: CustomCodeBlock as any,
+                }}
+              >
                 {message.content}
               </ReactMarkdown>
             </div>

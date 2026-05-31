@@ -47,6 +47,8 @@ pub fn run() {
             show_window,
             save_app_data,
             load_app_data,
+            apply_code_edit,
+            replace_in_file,
         ])
         // ── Setup ────────────────────────────────────────────
         .setup(|app| {

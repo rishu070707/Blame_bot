@@ -6,7 +6,7 @@ import {
   CheckCircle, XCircle, Info,
 } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
-import { runSecurityAudit, runPerformanceAudit } from '../../services/tauriService';
+import { runSecurityAudit, runPerformanceAudit, replaceInFile } from '../../services/tauriService';
 import { ollamaService } from '../../services/ollamaService';
 import {
   Button, Badge, Card, Progress, EmptyState,
@@ -24,6 +24,7 @@ const FindingCard: React.FC<{
   const [expanded, setExpanded] = useState(false);
   const [aiFixLoading, setAiFixLoading] = useState(false);
   const [aiFix, setAiFix] = useState('');
+  const [applyLoading, setApplyLoading] = useState(false);
   const { activeModel } = useAppStore();
 
   const getAiFix = async () => {
@@ -44,6 +45,25 @@ const FindingCard: React.FC<{
       setAiFix('Could not get AI suggestion. Is Ollama running?');
     } finally {
       setAiFixLoading(false);
+    }
+  };
+
+  const handleApplyFix = async () => {
+    if (!aiFix || !finding.snippet) return;
+    setApplyLoading(true);
+    try {
+      // Basic extraction of code block if it contains one
+      let fixCode = aiFix;
+      const codeMatch = aiFix.match(/```[a-z]*\n([\s\S]*?)```/);
+      if (codeMatch && codeMatch[1]) {
+        fixCode = codeMatch[1].trim();
+      }
+      await replaceInFile(finding.file, finding.snippet, fixCode);
+      alert('Fix applied successfully to ' + finding.file);
+    } catch (e: any) {
+      alert('Failed to apply fix: ' + e);
+    } finally {
+      setApplyLoading(false);
     }
   };
 
@@ -187,6 +207,11 @@ const FindingCard: React.FC<{
                 <Button variant="secondary" size="sm" onClick={getAiFix} leftIcon={<Zap size={12} />} isLoading={aiFixLoading}>
                   {aiFix ? 'Regenerate Fix' : 'Get AI Fix'}
                 </Button>
+                {aiFix && finding.snippet && (
+                  <Button variant="primary" size="sm" onClick={handleApplyFix} isLoading={applyLoading} leftIcon={<CheckCircle size={12} />}>
+                    Apply Fix to File
+                  </Button>
+                )}
                 {finding.snippet && (
                   <Button
                     variant="ghost" size="sm"
