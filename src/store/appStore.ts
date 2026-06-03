@@ -35,7 +35,7 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       currentView: 'dashboard', isCommandBarOpen: false,
       projects: [], activeProjectId: null,
-      chatMessages: [], ollamaStatus: 'idle', availableModels: [], activeModel: 'deepseek-coder',
+      chatMessages: [], ollamaStatus: 'idle', availableModels: [], activeModel: 'qwen2.5-coder:1.5b',
       securityReport: null, performanceReport: null, isAuditRunning: false, auditProgress: 0,
       indexedFiles: [], isIndexing: false, indexingProgress: 0, lastSearchQuery: '',
       settings: DEFAULT_SETTINGS, notifications: [], isSidebarCollapsed: false,

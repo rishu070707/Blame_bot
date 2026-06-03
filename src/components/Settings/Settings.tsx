@@ -238,7 +238,7 @@ export const Settings: React.FC = () => {
 
               {availableModels.length === 0 && status !== 'error' && (
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '8px' }}>
-                  Run <code style={{ fontFamily: 'var(--font-mono)', background: 'var(--bg-elevated)', padding: '1px 4px', borderRadius: '3px' }}>ollama pull deepseek-coder</code> to download a model
+                  Run <code style={{ fontFamily: 'var(--font-mono)', background: 'var(--bg-elevated)', padding: '1px 4px', borderRadius: '3px' }}>ollama pull qwen2.5-coder:1.5b</code> to download a model
                 </p>
               )}
             </div>

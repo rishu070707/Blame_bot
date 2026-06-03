@@ -88,7 +88,7 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  ollamaHost: 'http://localhost:11434', defaultModel: 'deepseek-coder', globalShortcut: 'Ctrl+Space',
+  ollamaHost: 'http://localhost:11434', defaultModel: 'qwen2.5-coder:1.5b', globalShortcut: 'Ctrl+Space',
   indexing: {
     excludePatterns: ['node_modules', '.git', 'dist', 'build', 'target', '.next', '__pycache__'],
     maxFileSizeKB: 500,
