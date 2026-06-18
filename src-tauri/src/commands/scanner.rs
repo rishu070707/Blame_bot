@@ -79,6 +79,9 @@ fn detect_language(ext: &str) -> &'static str {
 fn is_excluded(path: &Path, exclude_patterns: &[String]) -> bool {
     let path_str = path.to_string_lossy();
     for pattern in exclude_patterns {
+        if pattern.is_empty() {
+            continue;
+        }
         if path_str.contains(pattern.as_str()) {
             return true;
         }

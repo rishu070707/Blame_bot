@@ -1,4 +1,4 @@
-﻿import { useCallback, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useAppStore } from "../store/appStore";
 import { ollamaService } from "../services/ollamaService";
@@ -33,9 +33,14 @@ export function useOllama() {
     addMessage(assistantMsg);
 
     abortRef.current = new AbortController();
+
+    // Pass pinned context files so AI knows exactly what to edit
+    const contextFiles = useAppStore.getState().contextFiles;
+    const systemPrompt = ollamaService.buildSystemPrompt(undefined, contextFiles);
+
     const request: OllamaRequest = {
       model: activeModel,
-      messages: ollamaService.buildMessages(chatMessages, content, ollamaService.buildSystemPrompt()),
+      messages: ollamaService.buildMessages(chatMessages, content, systemPrompt),
       stream: true,
       options: { temperature: settings.ai.temperature, num_ctx: settings.ai.contextWindow, num_predict: settings.ai.maxTokens },
     };

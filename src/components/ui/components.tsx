@@ -483,26 +483,30 @@ export const Toast: React.FC<ToastProps> = ({ type, title, message, onClose }) =
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 60, scale: 0.95 }}
       style={{
-        background: colors.bg,
-        border: `var(--border-width) solid #000`,
-        padding: '16px',
+        background: 'var(--vscode-panel)',
+        border: `1px solid var(--vscode-border)`,
+        borderLeft: `4px solid ${colors.bg}`,
+        padding: '12px 16px',
         display: 'flex', alignItems: 'flex-start', gap: '12px',
-        boxShadow: '8px 8px 0px #000',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
         maxWidth: '320px', minWidth: '240px',
-        color: '#000',
+        color: 'var(--text-primary)',
+        pointerEvents: 'auto',
       }}
     >
       <div style={{ flex: 1 }}>
-        <p style={{ fontWeight: 900, fontSize: '1rem', textTransform: 'uppercase' }}>{title}</p>
-        {message && <p style={{ fontSize: '0.875rem', fontWeight: 600, marginTop: '4px' }}>{message}</p>}
+        <p style={{ fontWeight: 600, fontSize: '0.875rem' }}>{title}</p>
+        {message && <p style={{ fontSize: '0.8125rem', marginTop: '4px', color: 'var(--text-secondary)' }}>{message}</p>}
       </div>
       <button
         onClick={onClose}
         style={{
-          background: '#fff', border: '2px solid #000', color: '#000',
-          cursor: 'pointer', padding: '4px', flexShrink: 0,
-          fontWeight: 900, boxShadow: '2px 2px 0px #000',
+          background: 'transparent', border: 'none', color: 'var(--text-secondary)',
+          cursor: 'pointer', padding: '2px', flexShrink: 0,
+          fontSize: '18px', lineHeight: '14px',
         }}
+        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
       >
         ×
       </button>

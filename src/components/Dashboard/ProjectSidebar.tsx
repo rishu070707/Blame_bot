@@ -81,16 +81,34 @@ const ProjectCard: React.FC<{
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
           {isActive && <ChevronRight size={14} style={{ color: 'var(--accent-cyan)' }} />}
           <button
-            onClick={(e) => { e.stopPropagation(); onRemove(); }}
-            style={{
-              background: 'none', border: 'none', color: 'var(--text-dim)',
-              cursor: 'pointer', padding: '2px', opacity: 0,
-              transition: 'opacity var(--transition-fast)',
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm(`Remove "${project.name}" from BlameBot?\n\n(This won't delete files on disk)`)) {
+                onRemove();
+              }
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0')}
+            title={`Remove ${project.name}`}
+            style={{
+              background: 'none', border: 'none',
+              color: 'var(--text-dim)',
+              cursor: 'pointer', padding: '4px',
+              opacity: 0.45,
+              borderRadius: '4px',
+              display: 'flex', alignItems: 'center',
+              transition: 'opacity 0.15s ease, color 0.15s ease, background 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.color = 'var(--danger)';
+              e.currentTarget.style.background = 'rgba(239,68,68,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '0.45';
+              e.currentTarget.style.color = 'var(--text-dim)';
+              e.currentTarget.style.background = 'none';
+            }}
           >
-            <Trash2 size={11} />
+            <Trash2 size={13} />
           </button>
         </div>
       </div>

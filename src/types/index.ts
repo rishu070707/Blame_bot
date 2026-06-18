@@ -1,4 +1,4 @@
-﻿// BlameBot TypeScript Types
+// BlameBot TypeScript Types
 
 export interface OllamaModel {
   name: string;
@@ -88,7 +88,7 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  ollamaHost: 'http://localhost:11434', defaultModel: 'qwen2.5-coder:1.5b', globalShortcut: 'Ctrl+Space',
+  ollamaHost: 'http://127.0.0.1:11434', defaultModel: 'qwen2.5-coder:1.5b', globalShortcut: 'Ctrl+Space',
   indexing: {
     excludePatterns: ['node_modules', '.git', 'dist', 'build', 'target', '.next', '__pycache__'],
     maxFileSizeKB: 500,
@@ -103,4 +103,29 @@ export type AppView = 'landing' | 'dashboard' | 'audit' | 'search' | 'settings';
 export interface NotificationItem {
   id: string; type: 'success' | 'error' | 'warning' | 'info';
   title: string; message?: string; duration?: number;
+}
+
+// ─── VS Code Editor Types ─────────────────────────────────────
+
+export interface EditorTab {
+  id: string;           // usually the absolute path
+  path: string;
+  name: string;         // filename
+  isDirty: boolean;     // has unsaved changes
+  content?: string;     // current unsaved content
+  language?: SupportedLanguage;
+}
+
+export interface TerminalSession {
+  id: string;
+  title: string;
+  output: string[];     // lines of output
+}
+
+export interface PanelLayout {
+  sidebarWidth: number;
+  rightPanelWidth: number;
+  terminalHeight: number;
+  terminalOpen: boolean;
+  rightPanelOpen: boolean;
 }

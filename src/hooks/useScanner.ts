@@ -100,11 +100,31 @@ export function useScanner() {
       }
 
     } catch (err: any) {
+      console.error("Scanner Error:", err);
       setIndexing(false);
       setAuditRunning(false);
-      addNotification({ type: "error", title: "Operation Failed", message: err.message });
+      addNotification({ type: "error", title: "Operation Failed", message: err?.message || typeof err === 'string' ? err : JSON.stringify(err) });
     }
   }, [addProject, setIndexing, setIndexedFiles, addNotification, settings.indexing, setSecurityReport, setPerformanceReport, setAuditRunning, setAuditProgress, activeModel]);
 
-  return { openAndScanProject };
+  const reindexProject = useCallback(async (path: string, name: string) => {
+    addNotification({ type: "info", title: "Restoring Project", message: `Indexing ${name}...`, duration: 2000 });
+    setIndexing(true, 5);
+    try {
+      const result = await scanProject(path);
+      setIndexing(true, 30);
+      const files = await getFilesForIndexing(path, settings.indexing.excludePatterns, settings.indexing.includedExtensions);
+      setIndexing(true, 60);
+      const indexed = indexingService.buildIndex(files, (p) => setIndexing(true, 60 + p * 0.4));
+      setIndexedFiles(indexed);
+      setIndexing(false, 100);
+      addNotification({ type: "success", title: "Project Ready", message: `${result.total_files} files ready to search` });
+    } catch (err: any) {
+      console.error("Scanner Error:", err);
+      setIndexing(false);
+      addNotification({ type: "error", title: "Failed to load project", message: err?.message || typeof err === 'string' ? err : JSON.stringify(err) });
+    }
+  }, [setIndexing, setIndexedFiles, addNotification, settings.indexing]);
+
+  return { openAndScanProject, reindexProject };
 }

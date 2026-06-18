@@ -1,96 +1,279 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
   Send, Trash2, Copy, Download, Zap, Bot, User,
   StopCircle, Code2, AlertTriangle, Terminal, RefreshCw,
-  CheckCircle,
+  CheckCircle, FilePen, X, ChevronDown, ChevronUp, Loader2,
 } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { useOllama } from '../../hooks/useOllama';
 import { ThinkingDots, Button, EmptyState, LoadingSpinner } from '../ui';
-import { applyCodeEdit, saveFileDialog } from '../../services/tauriService';
+import { saveFileDialog } from '../../services/tauriService';
+import {
+  parseCodeFenceMeta,
+  resolvePath,
+  applyFullFile,
+  readCurrentFile,
+  computeDiff,
+  type ApplyStatus,
+  type DiffLine,
+} from '../../services/codeEditService';
+import { FileContextBar } from './FileContextBar';
 import type { ChatMessage } from '../../types';
+
+// ─── Inline Diff Preview ──────────────────────────────────────
+
+const DiffPreview: React.FC<{ diff: DiffLine[] }> = ({ diff }) => (
+  <div style={{
+    fontFamily: 'var(--font-mono)',
+    fontSize: '0.78rem',
+    lineHeight: '1.5',
+    overflowX: 'auto',
+    maxHeight: '200px',
+    overflowY: 'auto',
+    background: '#0d0d0d',
+    borderTop: '1px solid #333',
+    padding: '8px 0',
+  }}>
+    {diff.map((line, i) => {
+      const bg =
+        line.type === 'added' ? 'rgba(34,197,94,0.15)' :
+        line.type === 'removed' ? 'rgba(239,68,68,0.15)' :
+        'transparent';
+      const color =
+        line.type === 'added' ? '#86efac' :
+        line.type === 'removed' ? '#fca5a5' :
+        '#666';
+      const prefix =
+        line.type === 'added' ? '+' :
+        line.type === 'removed' ? '-' :
+        ' ';
+      return (
+        <div key={i} style={{ background: bg, padding: '0 12px', display: 'flex', gap: '8px' }}>
+          <span style={{ color: line.type === 'unchanged' ? '#444' : color, userSelect: 'none', flexShrink: 0 }}>{prefix}</span>
+          <span style={{ color, whiteSpace: 'pre', flex: 1 }}>{line.content}</span>
+        </div>
+      );
+    })}
+  </div>
+);
 
 // ─── Custom Code Block ────────────────────────────────────────
 
 const CustomCodeBlock = ({ node, inline, className, children, ...props }: any) => {
   const match = /language-(\w+)/.exec(className || '');
-  const meta = node?.data?.meta || node?.meta || props.meta || '';
-  const [applying, setApplying] = useState(false);
+  const meta: string = node?.data?.meta || node?.meta || props.meta || '';
+  
+  const [applyStatus, setApplyStatus] = useState<ApplyStatus>('idle');
+  const [appliedPath, setAppliedPath] = useState<string>('');
+  const [showDiff, setShowDiff] = useState(false);
+  const [diff, setDiff] = useState<DiffLine[] | null>(null);
+  const [diffLoading, setDiffLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const handleApply = async () => {
-    try {
-      setApplying(true);
-      const codeToApply = String(children).replace(/\n$/, '');
-      const store = useAppStore.getState();
-      const activeProject = store.projects.find(p => p.id === store.activeProjectId);
-      
-      let targetPath = '';
-      if (meta && activeProject) {
-        const cleanMeta = meta.trim();
-        if (cleanMeta.startsWith('/') || cleanMeta.match(/^[a-zA-Z]:\\/)) {
-          targetPath = cleanMeta;
-        } else {
-          const separator = activeProject.path.includes('\\') ? '\\' : '/';
-          const normalizedMeta = cleanMeta.replace(/[\\/]/g, separator);
-          targetPath = `${activeProject.path}${activeProject.path.endsWith(separator) ? '' : separator}${normalizedMeta}`;
-        }
-      }
+  const store = useAppStore.getState();
+  const activeProject = store.projects.find(p => p.id === store.activeProjectId);
+  const rawPath = meta.trim();
+  const resolvedPath = resolvePath(rawPath, activeProject?.path);
 
-      let finalPath = targetPath;
-      if (!finalPath) {
-        finalPath = await saveFileDialog() || '';
-      }
+  const handleApply = useCallback(async () => {
+    const codeToApply = String(children).replace(/\n$/, '');
+    let finalPath = resolvedPath;
 
-      if (finalPath) {
-        await applyCodeEdit(finalPath, codeToApply);
-        alert('Applied successfully to: ' + finalPath);
-      }
-    } catch (e: any) {
-      alert('Failed to apply to file: ' + e);
-    } finally {
-      setApplying(false);
+    // If no path found from meta, ask with file picker
+    if (!finalPath) {
+      finalPath = (await saveFileDialog()) || '';
+      if (!finalPath) return;
     }
+
+    setApplyStatus('applying');
+    const result = await applyFullFile(finalPath, codeToApply);
+
+    if (result.status === 'applied') {
+      setApplyStatus('applied');
+      setAppliedPath(result.path);
+      // Fire a toast notification
+      useAppStore.getState().addNotification({
+        type: 'success',
+        title: '✓ Applied',
+        message: result.path.split(/[\\/]/).pop() ?? result.path,
+        duration: 3500,
+      });
+      // Reset to idle after a bit so user can re-apply if needed
+      setTimeout(() => setApplyStatus('idle'), 8000);
+    } else {
+      setApplyStatus('error');
+      useAppStore.getState().addNotification({
+        type: 'error',
+        title: 'Apply failed',
+        message: result.error ?? 'Unknown error',
+        duration: 5000,
+      });
+      setTimeout(() => setApplyStatus('idle'), 5000);
+    }
+  }, [children, resolvedPath]);
+
+  const handleShowDiff = useCallback(async () => {
+    if (showDiff) { setShowDiff(false); return; }
+    if (!resolvedPath) return;
+    setDiffLoading(true);
+    setShowDiff(true);
+    const current = await readCurrentFile(resolvedPath);
+    if (current !== null) {
+      const newContent = String(children).replace(/\n$/, '');
+      setDiff(computeDiff(current, newContent));
+    } else {
+      setDiff(null);
+    }
+    setDiffLoading(false);
+  }, [resolvedPath, showDiff, children]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(String(children));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   if (!inline && match) {
+    const isApplying = applyStatus === 'applying';
+    const isApplied = applyStatus === 'applied';
+    const isError = applyStatus === 'error';
+    const hasPath = !!resolvedPath;
+
     return (
-      <div style={{ position: 'relative', marginTop: '16px', marginBottom: '16px', border: 'var(--border-width) solid #000', boxShadow: '4px 4px 0px #000' }}>
+      <div style={{ position: 'relative', marginTop: '16px', marginBottom: '16px', border: '1px solid var(--vscode-border)', borderRadius: '4px', overflow: 'hidden' }}>
+        {/* Code block header */}
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          background: '#000', padding: '8px 12px',
-          borderBottom: 'var(--border-width) solid #000',
+          background: 'var(--vscode-sidebar)', padding: '6px 10px',
+          borderBottom: '1px solid var(--vscode-border)',
+          gap: '8px',
+          flexWrap: 'wrap',
         }}>
-          <span style={{ fontSize: '0.75rem', color: '#888', fontFamily: 'var(--font-mono)' }}>
-            {match[1]} {meta && <span style={{ color: '#ccc', marginLeft: '6px' }}>{meta}</span>}
-          </span>
-          <button
-            onClick={handleApply}
-            disabled={applying}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: 'var(--accent-cyan)',
-              color: '#000',
-              border: 'none',
-              padding: '6px 12px',
-              fontSize: '0.75rem',
-              fontWeight: 900,
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-            }}
-          >
-            <CheckCircle size={14} style={{ color: '#000' }} />
-            {applying ? 'Applying...' : 'Apply to File'}
-          </button>
+          {/* Left: language + path */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+            <span style={{ fontSize: '0.72rem', color: '#888', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>
+              {match[1]}
+            </span>
+            {rawPath && (
+              <span style={{
+                fontSize: '0.72rem', color: '#aaa', fontFamily: 'var(--font-mono)',
+                background: '#1a1a1a', padding: '1px 6px', borderRadius: '3px',
+                border: '1px solid #333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                maxWidth: '280px', display: 'block',
+              }} title={resolvedPath || rawPath}>
+                {rawPath}
+              </span>
+            )}
+          </div>
+
+          {/* Right: action buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+            {/* Diff toggle (only if path known) */}
+            {hasPath && (
+              <button
+                onClick={handleShowDiff}
+                title={showDiff ? 'Hide diff' : 'Preview diff'}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '4px',
+                  background: showDiff ? 'rgba(34,211,238,0.15)' : 'transparent',
+                  color: showDiff ? 'var(--accent-cyan)' : '#666',
+                  border: `1px solid ${showDiff ? 'rgba(34,211,238,0.3)' : '#333'}`,
+                  padding: '3px 8px',
+                  fontSize: '0.7rem',
+                  cursor: 'pointer',
+                  borderRadius: '3px',
+                  fontFamily: 'var(--font-sans)',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {diffLoading ? <Loader2 size={10} style={{ animation: 'spin 1s linear infinite' }} /> : (showDiff ? <ChevronUp size={10} /> : <ChevronDown size={10} />)}
+                Diff
+              </button>
+            )}
+
+            {/* Copy */}
+            <button
+              onClick={handleCopy}
+              title="Copy code"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                background: 'transparent', color: copied ? '#86efac' : '#666',
+                border: '1px solid #333', padding: '3px 8px',
+                fontSize: '0.7rem', cursor: 'pointer', borderRadius: '3px',
+                fontFamily: 'var(--font-sans)', transition: 'all 0.15s ease',
+              }}
+            >
+              <Copy size={10} />
+              {copied ? 'Copied' : 'Copy'}
+            </button>
+
+            {/* Apply button */}
+            <motion.button
+              whileHover={!isApplying ? { scale: 1.03 } : {}}
+              whileTap={!isApplying ? { scale: 0.97 } : {}}
+              onClick={!isApplying && !isApplied ? handleApply : undefined}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '5px',
+                background: isApplied ? '#166534' : isError ? '#7f1d1d' : 'var(--accent-cyan)',
+                color: isApplied || isError ? '#fff' : '#000',
+                border: 'none',
+                padding: '5px 12px',
+                fontSize: '0.75rem',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                cursor: isApplying || isApplied ? 'default' : 'pointer',
+                letterSpacing: '0.03em',
+                transition: 'background 0.2s ease',
+                borderRadius: '2px',
+                opacity: isApplying ? 0.7 : 1,
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              {isApplying ? (
+                <><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> Applying…</>
+              ) : isApplied ? (
+                <><CheckCircle size={12} /> Applied</>
+              ) : isError ? (
+                <><X size={12} /> Failed</>
+              ) : (
+                <><FilePen size={12} /> Apply to File</>
+              )}
+            </motion.button>
+          </div>
         </div>
-        <pre className={className} style={{
-          margin: 0, padding: '16px', background: '#000', color: '#fff',
-          overflowX: 'auto',
-          fontSize: '0.875rem',
-          fontFamily: 'var(--font-mono)'
-        }} {...props}>
+
+        {/* Inline diff preview */}
+        <AnimatePresence>
+          {showDiff && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              style={{ overflow: 'hidden' }}
+            >
+              {diffLoading ? (
+                <div style={{ background: '#0d0d0d', padding: '12px', textAlign: 'center' }}>
+                  <Loader2 size={14} style={{ color: '#555', animation: 'spin 1s linear infinite' }} />
+                </div>
+              ) : diff && diff.length > 0 ? (
+                <DiffPreview diff={diff} />
+              ) : (
+                <div style={{ background: '#0d0d0d', padding: '10px 14px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#555' }}>
+                    {diff === null ? 'File not found on disk — this will create a new file' : 'No differences detected'}
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Code */}
+        <pre style={{ margin: 0, padding: '14px 16px', background: '#000', color: '#fff', overflowX: 'auto', fontSize: '0.875rem', fontFamily: 'var(--font-mono)' }} {...props}>
           <code className={className} {...props}>
             {children}
           </code>
@@ -131,29 +314,24 @@ const MessageBubble: React.FC<{ message: ChatMessage; index: number }> = ({
     >
       {/* Avatar */}
       <div style={{
-        width: 32, height: 32, flexShrink: 0,
-        border: '2px solid #000',
-        background: isUser
-          ? 'var(--accent-purple)'
-          : 'var(--accent-cyan)',
+        width: 28, height: 28, flexShrink: 0,
+        borderRadius: '4px',
+        background: isUser ? 'var(--vscode-selection)' : 'var(--vscode-accent)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '2px 2px 0px #000',
       }}>
         {isUser
-          ? <User size={14} style={{ color: '#000' }} />
-          : <Bot size={14} style={{ color: '#000' }} />
+          ? <User size={14} style={{ color: '#fff' }} />
+          : <Bot size={14} style={{ color: '#fff' }} />
         }
       </div>
 
       {/* Bubble */}
-      <div style={{ maxWidth: '78%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ maxWidth: '85%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <div style={{
-          padding: isUser ? '10px 16px' : '12px 16px',
-          background: isUser
-            ? '#fff'
-            : '#fff',
-          border: 'var(--border-width) solid #000',
-          boxShadow: '4px 4px 0px #000',
+          padding: isUser ? '8px 12px' : '0',
+          background: isUser ? 'var(--vscode-sidebar)' : 'transparent',
+          borderRadius: '4px',
+          border: isUser ? '1px solid var(--vscode-border)' : 'none',
         }}>
           {message.isStreaming && !message.content ? (
             <ThinkingDots />
@@ -255,27 +433,26 @@ export const AIChat: React.FC = () => {
 
   return (
     <div style={{
-      display: 'flex', flexDirection: 'column', height: '100%',
-      background: 'var(--bg-surface)', border: 'var(--border-width) solid #000',
-      boxShadow: '4px 4px 0px #000', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', height: '100%', width: '100%',
+      background: 'var(--vscode-sidebar)', borderLeft: '1px solid var(--vscode-border)',
+      overflow: 'hidden',
     }}>
 
       {/* Header */}
       <div style={{
-        padding: '14px 20px',
-        borderBottom: 'var(--border-width) solid #000',
-        background: '#fff',
+        padding: '10px 14px',
+        borderBottom: '1px solid var(--vscode-border)',
+        background: 'var(--vscode-panel)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: 32, height: 32,
-            background: 'var(--accent-cyan)', border: '2px solid #000',
+            width: 28, height: 28,
+            background: 'var(--vscode-accent)', borderRadius: '4px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '2px 2px 0px #000',
           }}>
-            <Bot size={16} style={{ color: '#000' }} />
+            <Bot size={16} style={{ color: '#fff' }} />
           </div>
           <div>
             <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
@@ -283,7 +460,7 @@ export const AIChat: React.FC = () => {
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <div style={{
-                width: 10, height: 10, flexShrink: 0, border: '2px solid #000',
+                width: 8, height: 8, flexShrink: 0, borderRadius: '50%',
                 background: isConnected ? 'var(--success)' : 'var(--danger)',
               }} />
               <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
@@ -337,9 +514,9 @@ export const AIChat: React.FC = () => {
                     onClick={() => setInput(a.prompt)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '6px',
-                      padding: '8px 12px',
-                      background: '#fff', border: '2px solid #000', boxShadow: '2px 2px 0px #000',
-                      color: '#000', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase',
+                      padding: '6px 10px', borderRadius: '4px',
+                      background: 'var(--vscode-panel)', border: '1px solid var(--vscode-border)',
+                      color: 'var(--text-primary)', fontSize: '0.8rem',
                       cursor: 'pointer', fontFamily: 'var(--font-sans)',
                     }}
                   >
@@ -378,26 +555,29 @@ export const AIChat: React.FC = () => {
         </motion.div>
       )}
 
+      {/* File Context Bar — pin files for real-time editing */}
+      <FileContextBar />
+
       {/* Input Area */}
       <div style={{
-        padding: '14px 16px',
-        borderTop: 'var(--border-width) solid #000',
-        background: '#fff',
+        padding: '14px',
+        borderTop: '1px solid var(--vscode-border)',
+        background: 'var(--vscode-sidebar)',
         flexShrink: 0,
       }}>
         <div style={{
           display: 'flex', gap: '10px', alignItems: 'flex-end',
-          background: '#fff',
-          border: 'var(--border-width) solid #000',
-          padding: '10px 12px',
-          boxShadow: '4px 4px 0px #000',
-          transition: 'all 0.1s step-end',
+          background: 'var(--vscode-base)',
+          border: '1px solid var(--vscode-border)',
+          borderRadius: '4px',
+          padding: '8px 12px',
+          transition: 'border 0.2s ease',
         }}
           onFocusCapture={(e) => {
-            e.currentTarget.style.background = 'var(--accent-yellow)';
+            e.currentTarget.style.borderColor = 'var(--vscode-focus)';
           }}
           onBlurCapture={(e) => {
-            e.currentTarget.style.background = '#fff';
+            e.currentTarget.style.borderColor = 'var(--vscode-border)';
           }}
         >
           <textarea
@@ -439,6 +619,9 @@ export const AIChat: React.FC = () => {
           All processing is local. No data leaves your machine.
         </p>
       </div>
+
+      {/* Spin keyframe for loader icons */}
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

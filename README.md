@@ -1,16 +1,16 @@
 # BlameBot 🤖
-**Find bugs. Fix code. Audit projects. All offline.**
+**The Unlimited, 100% Offline VS Code Alternative Desktop App with Native AI.**
 
-BlameBot is a lightning-fast, privacy-first AI developer copilot built as a native desktop application. Unlike cloud-based AI assistants, BlameBot runs 100% locally on your machine, ensuring your proprietary code never leaves your computer. 
+BlameBot is a lightning-fast, privacy-first code editor and AI developer copilot built as a **native desktop application** (macOS, Windows, Linux). It gives you the familiar, powerful environment of VS Code, but completely offline as a standalone app supercharged with local AI. No subscriptions, no internet required, and zero rate limits. Your code never leaves your machine.
 
-Featuring a stunning "Premium Dark Neumorphism" interface, BlameBot seamlessly integrates with local LLMs (via Ollama) and leverages a high-performance Rust backend to analyze your entire codebase in milliseconds.
+Featuring a stunning "Premium Dark Neumorphism" interface, BlameBot seamlessly integrates with local LLMs (via Ollama) and leverages a high-performance Rust backend to analyze, edit, and audit your entire codebase in milliseconds.
 
 ## ✨ Features
 
-- **100% Offline & Private:** Powered by your local models (e.g., qwen2.5-coder:1.5b, Llama 3) via Ollama. No subscriptions, no cloud telemetry.
-- **Unlimited Use:** Local inference means no usage caps, no rate limits, and no recurring fees.
-- **VS Code-like Auto-Fix:** BlameBot can write code directly to your local file system. Click "Apply Fix to File" on audit reports or "Save to File" in chat to instantly patch your codebase.
-- **Lightning Fast Code Search:** In-memory TF-IDF search engine indexes your code dynamically as you type.
+- **The Native Desktop VS Code Experience:** Enjoy a familiar, high-performance code editor interface built for deep focus as a dedicated desktop app, without the telemetry or bloated web dependencies.
+- **Unlimited Offline AI:** Powered by your local models (e.g., qwen2.5-coder:1.5b, Llama 3) via Ollama. Say goodbye to API costs, usage caps, and recurring fees. Generate and edit as much code as you want, forever.
+- **One-Click Auto-Fix:** BlameBot can write code directly to your local file system. Click "Apply to File" in chat or from audit reports to instantly patch your codebase.
+- **Lightning Fast Code Search:** In-memory TF-IDF search engine indexes your code dynamically as you type, right inside your editor.
 - **Automated Security & Performance Audits:** A native Rust backend crawls your file tree instantly, detecting hardcoded secrets, injection risks, N+1 queries, and blocking I/O with AI-suggested fixes.
 - **Floating Command Bar:** Summon BlameBot from anywhere on your OS using `Ctrl+Space` for rapid AI queries and project navigation.
 - **Premium UI/UX:** Built with a custom React component library featuring fluid framer-motion micro-interactions, glassmorphic glows, and beautiful data visualization.
