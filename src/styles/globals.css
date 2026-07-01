@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap');
 
-/* ─── VS Code Dark Theme Tokens ────────────────────────────── */
+/* ─── VS Code Dark+ Theme Tokens ────────────────────────────── */
 :root {
-  /* VS Code Core Colors */
+  /* Core Editor Colors */
   --vscode-base: #1e1e1e;
   --vscode-panel: #252526;
   --vscode-sidebar: #252526;
@@ -10,35 +10,99 @@
   --vscode-title-bar: #3c3c3c;
   --vscode-tab-active: #1e1e1e;
   --vscode-tab-inactive: #2d2d2d;
+  --vscode-tab-unfocused: #2d2d2d;
   --vscode-border: #3c3c3c;
-  
+  --vscode-border-light: #454545;
+  --vscode-widget: #2d2d30;
+  --vscode-dropdown: #3c3c3c;
+  --vscode-input-bg: #3c3c3c;
+  --vscode-input-border: #3c3c3c;
+  --vscode-editor-line-highlight: rgba(255, 255, 255, 0.04);
+
   /* Text Colors */
   --text-primary: #cccccc;
   --text-secondary: #969696;
   --text-muted: #6b6b6b;
-  
+  --text-dim: #777777;
+  --text-inactive: #4d4d4d;
+  --text-bright: #ffffff;
+
   /* Accents */
   --vscode-accent: #007acc;
-  --vscode-accent-hover: #0062a3;
+  --vscode-accent-hover: #1a8ad4;
   --vscode-focus: #007fd4;
   --vscode-selection: #264f78;
+  --vscode-selection-inactive: #3a3d41;
   --vscode-hover: #2a2d2e;
+  --vscode-list-hover: #2a2d2e;
+  --vscode-list-active: #094771;
+  --vscode-indent-guide: #404040;
 
   /* Status Colors */
   --success: #89d185;
+  --success-dim: rgba(137, 209, 133, 0.15);
   --warning: #cca700;
+  --warning-dim: rgba(204, 167, 0, 0.15);
   --danger: #f14c4c;
+  --danger-dim: rgba(241, 76, 76, 0.15);
   --info: #3794ff;
+  --info-dim: rgba(55, 148, 255, 0.15);
+
+  /* Syntax Highlight Colors */
+  --syntax-keyword: #569cd6;
+  --syntax-string: #ce9178;
+  --syntax-comment: #6a9955;
+  --syntax-type: #4ec9b0;
+  --syntax-function: #dcdcaa;
+  --syntax-number: #b5cea8;
+  --syntax-operator: #d4d4d4;
+
+  /* File Icon Colors */
+  --icon-ts: #007acc;
+  --icon-js: #f1e05a;
+  --icon-python: #3572A5;
+  --icon-rust: #dea584;
+  --icon-go: #00add8;
+  --icon-json: #cbcb41;
+  --icon-markdown: #083fa1;
+  --icon-css: #563d7c;
+  --icon-html: #e34c26;
+  --icon-image: #a074c4;
+  --icon-folder: #dcb67a;
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
 
   /* Transitions */
-  --transition-fast: 100ms ease;
+  --transition-fast: 80ms ease;
+  --transition-normal: 150ms ease;
+  --transition-slow: 250ms ease;
+
+  /* Legacy compat */
+  --bg-base: var(--vscode-base);
+  --bg-surface: var(--vscode-panel);
+  --bg-card: var(--vscode-sidebar);
+  --border-width: 1px;
+  --border-base: var(--vscode-border);
+  --accent-cyan: var(--vscode-accent);
+  --accent-yellow: #e2c08d;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-raised: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-overlay: 0 8px 32px rgba(0,0,0,0.6);
 }
 
-/* ─── Reset & Base ──────────────────────────────────────────── */
+/* ─── Reset & Base ───────────────────────────────────────────── */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -50,6 +114,7 @@ html {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -57,17 +122,20 @@ body {
   background-color: var(--vscode-base);
   color: var(--text-primary);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
   line-height: 1.5;
+  font-size: 13px;
 }
 
 #root {
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-/* ─── Scrollbar (VS Code style) ─────────────────────────────── */
+/* ─── Scrollbar (VS Code style) ──────────────────────────────── */
 
 ::-webkit-scrollbar {
   width: 10px;
@@ -80,6 +148,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: rgba(121, 121, 121, 0.4);
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -90,22 +159,24 @@ body {
   background: transparent;
 }
 
-/* ─── Selection ─────────────────────────────────────────────── */
+/* ─── Selection ──────────────────────────────────────────────── */
 
 ::selection {
   background: var(--vscode-selection);
   color: inherit;
 }
 
-/* ─── Typography ────────────────────────────────────────────── */
+/* ─── Typography ─────────────────────────────────────────────── */
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
+  color: var(--text-primary);
 }
 
 code, pre {
   font-family: var(--font-mono);
+  font-variant-ligatures: contextual;
 }
 
 a {
@@ -117,38 +188,41 @@ a:hover {
   text-decoration: underline;
 }
 
-/* ─── Input & Buttons ───────────────────────────────────────── */
+/* ─── Form Controls (VS Code style) ─────────────────────────── */
 
-input, textarea {
-  background: #3c3c3c;
-  border: 1px solid transparent;
-  color: #cccccc;
+input, textarea, select {
+  background: var(--vscode-input-bg);
+  border: 1px solid var(--vscode-border);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  border-radius: 0;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--vscode-accent);
+  outline: 1px solid var(--vscode-accent);
+  outline-offset: -1px;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
+button {
   font-family: var(--font-sans);
 }
 
-input:focus, textarea:focus {
-  outline: 1px solid var(--vscode-focus);
-  border-color: transparent;
-}
-
-/* ─── Layout Helpers ────────────────────────────────────────── */
-
-.flex-center { display: flex; align-items: center; justify-content: center; }
-.flex-between { display: flex; align-items: center; justify-content: space-between; }
-.flex-col { display: flex; flex-direction: column; }
-.gap-1 { gap: 4px; }
-.gap-2 { gap: 8px; }
-.gap-3 { gap: 12px; }
-.gap-4 { gap: 16px; }
-
-/* ─── Focus Visible ─────────────────────────────────────────── */
+/* ─── Focus Visible ──────────────────────────────────────────── */
 
 :focus-visible {
   outline: 1px solid var(--vscode-focus);
   outline-offset: -1px;
 }
 
-/* ─── Tauri Window Drag ─────────────────────────────────────── */
+/* ─── Tauri Window Drag ──────────────────────────────────────── */
 
 [data-tauri-drag-region] {
   cursor: default;
@@ -156,13 +230,123 @@ input:focus, textarea:focus {
   -webkit-app-region: drag;
 }
 
-/* ─── Notification Toast (VS Code style) ────────────────────── */
+[data-tauri-drag-region] button,
+[data-tauri-drag-region] a,
+[data-tauri-drag-region] input,
+[data-tauri-drag-region] [data-no-drag] {
+  -webkit-app-region: no-drag;
+}
+
+/* ─── Prose / Markdown Rendering ─────────────────────────────── */
+
+.prose {
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.prose p {
+  margin-bottom: 0.75em;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--text-bright);
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+.prose h1 { font-size: 1.4em; }
+.prose h2 { font-size: 1.2em; }
+.prose h3 { font-size: 1.05em; }
+
+.prose ul, .prose ol {
+  margin-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.prose li {
+  margin-bottom: 0.25em;
+}
+
+.prose code {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  color: var(--syntax-string);
+  font-family: var(--font-mono);
+}
+
+.prose pre {
+  margin-bottom: 1em;
+}
+
+.prose strong {
+  color: var(--text-bright);
+  font-weight: 600;
+}
+
+.prose em {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.prose a {
+  color: var(--vscode-accent);
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--vscode-accent);
+  padding-left: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0.5em 0;
+}
+
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1em;
+  font-size: 0.85em;
+}
+
+.prose th {
+  background: var(--vscode-panel);
+  border: 1px solid var(--vscode-border);
+  padding: 6px 10px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+
+.prose td {
+  border: 1px solid var(--vscode-border);
+  padding: 5px 10px;
+}
+
+.prose tr:nth-child(even) td {
+  background: rgba(255,255,255,0.02);
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--vscode-border);
+  margin: 1em 0;
+}
+
+/* ─── Notification Toast ─────────────────────────────────────── */
 
 .toast-container {
   position: fixed;
   bottom: 30px;
   right: 16px;
-  z-index: 9999;
+  z-index: 99999;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -173,14 +357,242 @@ input:focus, textarea:focus {
   pointer-events: all;
 }
 
-/* Fallback legacy variables so old components don't instantly break while migrating */
-:root {
-  --bg-base: var(--vscode-base);
-  --bg-surface: var(--vscode-panel);
-  --bg-card: var(--vscode-sidebar);
-  --border-width: 1px;
-  --border-base: var(--vscode-border);
-  --accent-cyan: var(--vscode-accent);
-  --accent-yellow: var(--vscode-accent);
-  --danger-dim: rgba(241, 76, 76, 0.2);
+/* ─── Layout Utilities ───────────────────────────────────────── */
+
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-col { display: flex; flex-direction: column; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+
+/* ─── Context Menu ───────────────────────────────────────────── */
+
+.context-menu {
+  position: fixed;
+  background: var(--vscode-widget);
+  border: 1px solid var(--vscode-border);
+  box-shadow: var(--shadow-overlay);
+  padding: 4px 0;
+  min-width: 200px;
+  z-index: 99998;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 24px 6px 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  gap: 8px;
+  user-select: none;
+}
+
+.context-menu-item:hover {
+  background: var(--vscode-list-active);
+  color: #fff;
+}
+
+.context-menu-item.disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.context-menu-item.disabled:hover {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.context-menu-separator {
+  height: 1px;
+  background: var(--vscode-border);
+  margin: 4px 0;
+}
+
+/* ─── Resize Handle ──────────────────────────────────────────── */
+
+.resize-handle {
+  position: absolute;
+  z-index: 10;
+  transition: background var(--transition-fast);
+}
+
+.resize-handle:hover,
+.resize-handle.dragging {
+  background: var(--vscode-accent) !important;
+}
+
+.resize-handle-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  cursor: row-resize;
+}
+
+/* ─── Animations ─────────────────────────────────────────────── */
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-pulse { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-fade-in { animation: fade-in 0.15s ease forwards; }
+
+/* ─── VS Code Breadcrumb ─────────────────────────────────────── */
+
+.breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  background: var(--vscode-base);
+  border-bottom: 1px solid var(--vscode-border);
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  gap: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.breadcrumb-item:hover {
+  color: var(--text-primary);
+  background: var(--vscode-hover);
+}
+
+.breadcrumb-sep {
+  color: var(--text-muted);
+  font-size: 10px;
+  user-select: none;
+}
+
+/* ─── Window Control Buttons ─────────────────────────────────── */
+
+.window-control-btn {
+  width: 46px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  -webkit-app-region: no-drag;
+}
+
+.window-control-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.window-control-btn.close:hover {
+  background: #e81123;
+  color: #ffffff;
+}
+
+/* ─── Activity Bar Tooltip ───────────────────────────────────── */
+
+.activity-tooltip {
+  position: absolute;
+  left: 52px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--vscode-widget);
+  border: 1px solid var(--vscode-border);
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: var(--shadow-raised);
+}
+
+/* ─── Terminal ANSI colors ───────────────────────────────────── */
+
+.ansi-black   { color: #1e1e1e; }
+.ansi-red     { color: #f14c4c; }
+.ansi-green   { color: #89d185; }
+.ansi-yellow  { color: #cca700; }
+.ansi-blue    { color: #6796e6; }
+.ansi-magenta { color: #b267e6; }
+.ansi-cyan    { color: #2bbac5; }
+.ansi-white   { color: #cccccc; }
+.ansi-bright-black   { color: #666666; }
+.ansi-bright-red     { color: #f1897f; }
+.ansi-bright-green   { color: #b5d5a0; }
+.ansi-bright-yellow  { color: #e9c46a; }
+.ansi-bright-blue    { color: #82b4ff; }
+.ansi-bright-magenta { color: #d7a0f9; }
+.ansi-bright-cyan    { color: #67e7f9; }
+.ansi-bright-white   { color: #f0f0f0; }
+.ansi-bold    { font-weight: 700; }
+
+/* ─── Copilot Chat ───────────────────────────────────────────── */
+
+.copilot-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  background: var(--vscode-input-bg);
+  border: 1px solid var(--vscode-border);
+  border-radius: 6px;
+  transition: border-color var(--transition-fast);
+}
+
+.copilot-input-wrapper:focus-within {
+  border-color: var(--vscode-accent);
+}
+
+.model-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  background: rgba(0, 122, 204, 0.15);
+  border: 1px solid rgba(0, 122, 204, 0.3);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--vscode-accent);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+}
+
+.model-badge:hover {
+  background: rgba(0, 122, 204, 0.3);
 }

@@ -17,6 +17,15 @@ export interface ChatMessage {
   metadata?: { model?: string; tokenCount?: number; duration?: number; };
 }
 
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: Date;
+  updatedAt: Date;
+  model: string;
+}
+
 export interface OllamaRequest {
   model: string;
   messages: Array<{ role: string; content: string }>;
@@ -83,22 +92,24 @@ export type CommandCategory = 'ai_action' | 'navigation' | 'audit' | 'project' |
 export interface AppSettings {
   ollamaHost: string; defaultModel: string; globalShortcut: string;
   indexing: { excludePatterns: string[]; maxFileSizeKB: number; includedExtensions: string[]; };
-  ai: { temperature: number; contextWindow: number; maxTokens: number; streamingEnabled: boolean; };
-  ui: { theme: 'dark'; animationsEnabled: boolean; fontSize: 'sm' | 'md' | 'lg'; };
+  ai: { temperature: number; contextWindow: number; maxTokens: number; streamingEnabled: boolean; systemPromptVisible: boolean; };
+  ui: { theme: 'dark'; animationsEnabled: boolean; fontSize: 'sm' | 'md' | 'lg'; fontLigatures: boolean; minimap: boolean; wordWrap: boolean; };
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  ollamaHost: 'http://127.0.0.1:11434', defaultModel: 'qwen2.5-coder:1.5b', globalShortcut: 'Ctrl+Space',
+  ollamaHost: 'http://127.0.0.1:11434',
+  defaultModel: 'qwen2.5-coder:1.5b',
+  globalShortcut: 'Ctrl+Space',
   indexing: {
     excludePatterns: ['node_modules', '.git', 'dist', 'build', 'target', '.next', '__pycache__'],
     maxFileSizeKB: 500,
     includedExtensions: ['.ts', '.tsx', '.js', '.jsx', '.py', '.java', '.rs', '.go', '.sql', '.json', '.yaml', '.yml', '.toml', '.css', '.html', '.md'],
   },
-  ai: { temperature: 0.3, contextWindow: 4096, maxTokens: 2048, streamingEnabled: true },
-  ui: { theme: 'dark', animationsEnabled: true, fontSize: 'md' },
+  ai: { temperature: 0.3, contextWindow: 8192, maxTokens: 4096, streamingEnabled: true, systemPromptVisible: false },
+  ui: { theme: 'dark', animationsEnabled: true, fontSize: 'md', fontLigatures: true, minimap: true, wordWrap: true },
 };
 
-export type AppView = 'landing' | 'dashboard' | 'audit' | 'search' | 'settings';
+export type AppView = 'landing' | 'dashboard' | 'audit' | 'search' | 'settings' | 'extensions';
 
 export interface NotificationItem {
   id: string; type: 'success' | 'error' | 'warning' | 'info';
@@ -120,6 +131,8 @@ export interface TerminalSession {
   id: string;
   title: string;
   output: string[];     // lines of output
+  cwd?: string;         // current working directory
+  history?: string[];   // command history
 }
 
 export interface PanelLayout {
@@ -128,4 +141,9 @@ export interface PanelLayout {
   terminalHeight: number;
   terminalOpen: boolean;
   rightPanelOpen: boolean;
+}
+
+export interface CursorPosition {
+  line: number;
+  column: number;
 }

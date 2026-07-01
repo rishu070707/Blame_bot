@@ -24,6 +24,166 @@
     "fs:allow-mkdir",
     "global-shortcut:allow-register",
     "global-shortcut:allow-unregister",
-    "global-shortcut:allow-is-registered"
+    "global-shortcut:allow-is-registered",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "run-powershell",
+          "cmd": "powershell",
+          "args": [
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            { "validator": ".*" }
+          ]
+        },
+        {
+          "name": "run-cmd",
+          "cmd": "cmd",
+          "args": [
+            "/C",
+            { "validator": ".*" }
+          ]
+        },
+        {
+          "name": "run-sh",
+          "cmd": "sh",
+          "args": [
+            "-c",
+            { "validator": ".*" }
+          ]
+        },
+        {
+          "name": "run-bash",
+          "cmd": "bash",
+          "args": [
+            "-c",
+            { "validator": ".*" }
+          ]
+        },
+        {
+          "name": "git",
+          "cmd": "git",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "npm",
+          "cmd": "npm",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "npx",
+          "cmd": "npx",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "npm-cmd",
+          "cmd": "npm.cmd",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "npx-cmd",
+          "cmd": "npx.cmd",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "node",
+          "cmd": "node",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "python",
+          "cmd": "python",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "cargo",
+          "cmd": "cargo",
+          "args": [{ "validator": ".*" }]
+        }
+      ]
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "run-powershell",
+          "cmd": "powershell",
+          "args": [
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            { "validator": ".*" }
+          ]
+        },
+        {
+          "name": "run-cmd",
+          "cmd": "cmd",
+          "args": [
+            "/C",
+            { "validator": ".*" }
+          ]
+        },
+        {
+          "name": "run-sh",
+          "cmd": "sh",
+          "args": [
+            "-c",
+            { "validator": ".*" }
+          ]
+        },
+        {
+          "name": "run-bash",
+          "cmd": "bash",
+          "args": [
+            "-c",
+            { "validator": ".*" }
+          ]
+        },
+        {
+          "name": "git",
+          "cmd": "git",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "npm",
+          "cmd": "npm",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "npx",
+          "cmd": "npx",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "npm-cmd",
+          "cmd": "npm.cmd",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "npx-cmd",
+          "cmd": "npx.cmd",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "node",
+          "cmd": "node",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "python",
+          "cmd": "python",
+          "args": [{ "validator": ".*" }]
+        },
+        {
+          "name": "cargo",
+          "cmd": "cargo",
+          "args": [{ "validator": ".*" }]
+        }
+      ]
+    }
   ]
 }
