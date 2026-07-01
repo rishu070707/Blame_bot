@@ -57,5 +57,3 @@ Featuring a stunning "Premium Dark Neumorphism" interface, BlameBot seamlessly i
 ## 🔒 Privacy & Security
 BlameBot was designed from the ground up for enterprise environments with strict compliance requirements. It uses zero network requests outside of `localhost`. Your code is parsed, tokenized, and analyzed entirely within the confines of your own CPU and RAM.
 
----
-*Built with ❤️ for developers who value speed, aesthetics, and privacy.*
