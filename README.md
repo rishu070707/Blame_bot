@@ -9,6 +9,8 @@ Featuring a stunning "Premium Dark Neumorphism" interface, BlameBot seamlessly i
 
 - **The Native Desktop VS Code Experience:** Enjoy a familiar, high-performance code editor interface built for deep focus as a dedicated desktop app, without the telemetry or bloated web dependencies.
 - **Unlimited Offline AI:** Powered by your local models (e.g., qwen2.5-coder:1.5b, Llama 3) via Ollama. Say goodbye to API costs, usage caps, and recurring fees. Generate and edit as much code as you want, forever.
+- **Fully Functional Native Terminal:** A built-in multi-tab terminal powered by Tauri's shell plugin that hooks directly into your OS (`PowerShell` or `sh`) with full ANSI color support and command history.
+- **Robust Plugin & Extension Ecosystem:** Customize your workspace with custom Monaco themes, editor configurations (like Vim mode), and extensions, all managed efficiently in-memory via Zustand.
 - **One-Click Auto-Fix:** BlameBot can write code directly to your local file system. Click "Apply to File" in chat or from audit reports to instantly patch your codebase.
 - **Lightning Fast Code Search:** In-memory TF-IDF search engine indexes your code dynamically as you type, right inside your editor.
 - **Automated Security & Performance Audits:** A native Rust backend crawls your file tree instantly, detecting hardcoded secrets, injection risks, N+1 queries, and blocking I/O with AI-suggested fixes.
